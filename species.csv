@@ -1,0 +1,11 @@
+species,pair,status,source
+Morchella esculenta,1,edible,https://en.wikipedia.org/wiki/Morchella_esculenta
+Gyromitra esculenta,1,poisonous,https://en.wikipedia.org/wiki/Gyromitra_esculenta
+Cantharellus cibarius,2,edible,https://en.wikipedia.org/wiki/Cantharellus_cibarius
+Hygrophoropsis aurantiaca,2,inedible,https://en.wikipedia.org/wiki/Hygrophoropsis_aurantiaca
+Craterellus tubaeformis,3,edible,https://en.wikipedia.org/wiki/Craterellus_tubaeformis
+Cortinarius rubellus,3,poisonous,https://en.wikipedia.org/wiki/Cortinarius_rubellus
+Boletus edulis,4,edible,https://en.wikipedia.org/wiki/Boletus_edulis
+Tylopilus felleus,4,inedible,https://en.wikipedia.org/wiki/Tylopilus_felleus
+Agaricus campestris,5,edible,https://en.wikipedia.org/wiki/Agaricus_campestris
+Amanita virosa,5,poisonous,https://en.wikipedia.org/wiki/Amanita_virosa

@@ -1,0 +1,82 @@
+{
+ "Morchella esculenta": {
+  "taxid": "39407",
+  "phylum": "Ascomycota",
+  "class": "Pezizomycetes",
+  "order": "Pezizales",
+  "family": "Morchellaceae",
+  "genus": "Morchella"
+ },
+ "Gyromitra esculenta": {
+  "taxid": "33161",
+  "phylum": "Ascomycota",
+  "class": "Pezizomycetes",
+  "order": "Pezizales",
+  "family": "Discinaceae",
+  "genus": "Gyromitra"
+ },
+ "Cantharellus cibarius": {
+  "taxid": "36066",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Cantharellales",
+  "family": "Hydnaceae",
+  "genus": "Cantharellus"
+ },
+ "Hygrophoropsis aurantiaca": {
+  "taxid": "72124",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Boletales",
+  "family": "Hygrophoropsidaceae",
+  "genus": "Hygrophoropsis"
+ },
+ "Craterellus tubaeformis": {
+  "taxid": "57200",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Cantharellales",
+  "family": "Hydnaceae",
+  "genus": "Craterellus"
+ },
+ "Cortinarius rubellus": {
+  "taxid": "86073",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Agaricales",
+  "family": "Cortinariaceae",
+  "genus": "Cortinarius"
+ },
+ "Boletus edulis": {
+  "taxid": "36056",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Boletales",
+  "family": "Boletaceae",
+  "genus": "Boletus"
+ },
+ "Tylopilus felleus": {
+  "taxid": "98230",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Boletales",
+  "family": "Boletaceae",
+  "genus": "Tylopilus"
+ },
+ "Agaricus campestris": {
+  "taxid": "56157",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Agaricales",
+  "family": "Agaricaceae",
+  "genus": "Agaricus"
+ },
+ "Amanita virosa": {
+  "taxid": "78357",
+  "phylum": "Basidiomycota",
+  "class": "Agaricomycetes",
+  "order": "Agaricales",
+  "family": "Amanitaceae",
+  "genus": "Amanita"
+ }
+}
