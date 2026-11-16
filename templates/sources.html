@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sources{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Sources</div>
+  <div>
+    <h1>Where everything comes from</h1>
+    <p class="lede">Species data comes from public databases. Each record used is linked below.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Species</div>
+  <div class="scroll">
+    <table id="sources">
+      <thead><tr><th>Species</th><th>Label</th><th>Label source</th><th>DNA barcode</th><th>Classification</th><th>Photo</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Databases</div>
+  <div class="cols">
+    <div><h3>NCBI GenBank</h3><p>DNA barcode sequences. Each accession number in the table links to the record used.</p></div>
+    <div><h3>NCBI Taxonomy</h3><p>Family, order and the other classification ranks.</p></div>
+    <div><h3>iNaturalist</h3><p>Common names and photos. Photos are used under the Creative Commons licence shown for each.</p></div>
+  </div>
+</section>
+
+<section id="refs">
+  <div class="tag">References</div>
+  <ol class="refs">
+    <li>Schoch CL et al. (2012). Nuclear ribosomal internal transcribed spacer (ITS) region as a universal DNA barcode marker for Fungi. <i>PNAS</i> 109(16): 6241–6246. <a href="https://doi.org/10.1073/pnas.1117018109">doi:10.1073/pnas.1117018109</a></li>
+    <li>Saitou N, Nei M (1987). The neighbor-joining method: a new method for reconstructing phylogenetic trees. <i>Molecular Biology and Evolution</i> 4(4): 406–425. <a href="https://doi.org/10.1093/oxfordjournals.molbev.a040454">doi:10.1093/oxfordjournals.molbev.a040454</a></li>
+  </ol>
+</section>
+{% endblock %}

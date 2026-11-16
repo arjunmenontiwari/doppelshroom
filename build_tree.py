@@ -18,18 +18,31 @@ aligner = PairwiseAligner(mode="global", match_score=1, mismatch_score=-1,
 aligner.end_gap_score = 0  # don't punish sequences for covering more flanking rRNA
 
 
-def distance(a, b):
+def align(a, b):
+    """Align two sequences; return both rows trimmed to the region they share."""
     # ITS records can be stored on either strand: align both ways, keep the best.
     aln = max(aligner.align(a, b)[0], aligner.align(a, b.reverse_complement())[0],
               key=lambda x: x.score)
     s1, s2 = aln[0], aln[1]
-    # Only compare the region both sequences cover (trim overhanging ends).
     cols = [i for i in range(len(s1)) if s1[i] != "-" or s2[i] != "-"]
     start = max(min(i for i in cols if s1[i] != "-"), min(i for i in cols if s2[i] != "-"))
     end = min(max(i for i in cols if s1[i] != "-"), max(i for i in cols if s2[i] != "-"))
-    pairs = list(zip(s1[start:end + 1], s2[start:end + 1]))
-    diffs = sum(x != y for x, y in pairs)  # mismatches + internal gaps
-    return diffs / len(pairs)
+    return s1[start:end + 1], s2[start:end + 1]
+
+
+def distance(s1, s2):
+    return sum(x != y for x, y in zip(s1, s2)) / len(s1)  # mismatches + gaps
+
+
+def sample(s1, s2, width=60):
+    # Pick the window whose share of differences is closest to the whole alignment's,
+    # so the excerpt shown on the site is representative.
+    diffs = [x != y for x, y in zip(s1, s2)]
+    overall = sum(diffs) / len(diffs)
+    best = min(range(len(diffs) - width + 1),
+               key=lambda i: abs(sum(diffs[i:i + width]) / width - overall))
+    return {"length": len(diffs), "offset": best,
+            "top": s1[best:best + width], "bottom": s2[best:best + width]}
 
 
 def root_on_outgroup(tree):
@@ -49,14 +62,19 @@ def to_dict(clade):
 
 def main():
     with open("species.csv", newline="") as f:
-        status = {r["species"].replace(" ", "_"): r["status"] for r in csv.DictReader(f)}
+        rows = list(csv.DictReader(f))
+    status = {r["species"].replace(" ", "_"): r["status"] for r in rows}
+    pair = {r["species"].replace(" ", "_"): r["pair"] for r in rows}
     records = list(SeqIO.parse("mushrooms.fasta", "fasta"))
     names = [r.id for r in records]
 
     # DistanceMatrix wants a lower triangle: row i holds distances to rows 0..i.
-    d = {}
-    for i, j in itertools.combinations(range(len(records)), 2):
-        d[i, j] = distance(records[i].seq, records[j].seq)
+    aligned = {(i, j): align(records[i].seq, records[j].seq)
+               for i, j in itertools.combinations(range(len(records)), 2)}
+    d = {k: distance(*rows) for k, rows in aligned.items()}
+    with open("alignments.json", "w") as f:
+        json.dump([{"a": names[i], "b": names[j], **sample(*rows)}
+                   for (i, j), rows in aligned.items() if pair[names[i]] == pair[names[j]]], f)
     matrix = [[d[j, i] for j in range(i)] + [0.0] for i in range(len(records))]
     dm = DistanceMatrix(names, matrix)
     print(dm)

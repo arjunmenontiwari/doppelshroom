@@ -1,0 +1,112 @@
+{
+ "Morchella esculenta": {
+  "inat_id": 58682,
+  "common_name": "Yellow Morel",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Morchella esculenta",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/194781537/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/194781537/medium.jpg",
+   "attribution": "(c) k_eper, some rights reserved (CC BY-NC-SA)",
+   "license": "cc-by-nc-sa"
+  }
+ },
+ "Gyromitra esculenta": {
+  "inat_id": 85120,
+  "common_name": "False Morel",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Gyromitra esculenta",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/1865611/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/1865611/medium.jpg",
+   "attribution": "(c) Kari Pihlaviita, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  }
+ },
+ "Cantharellus cibarius": {
+  "inat_id": 47347,
+  "common_name": "Golden Chanterelle",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Cantharellus cibarius",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/309948593/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/309948593/medium.jpg",
+   "attribution": "(c) Federico Calledda, some rights reserved (CC BY-NC), uploaded by Federico Calledda",
+   "license": "cc-by-nc"
+  }
+ },
+ "Hygrophoropsis aurantiaca": {
+  "inat_id": 63538,
+  "common_name": "False Chanterelle",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Hygrophoropsis aurantiaca",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/237942491/square.jpeg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/237942491/medium.jpeg",
+   "attribution": "(c) Matthieu Morin, some rights reserved (CC BY-NC), uploaded by Matthieu Morin",
+   "license": "cc-by-nc"
+  }
+ },
+ "Craterellus tubaeformis": {
+  "inat_id": 350511,
+  "common_name": "Yellowfoot",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Craterellus tubaeformis",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/337165669/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/337165669/medium.jpg",
+   "attribution": "(c) growbadlands, some rights reserved (CC BY-NC), uploaded by growbadlands",
+   "license": "cc-by-nc"
+  }
+ },
+ "Cortinarius rubellus": {
+  "inat_id": 500053,
+  "common_name": "deadly webcap",
+  "wikipedia_url": "http://en.wikipedia.org/wiki/Cortinarius_rubellus",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/106833656/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/106833656/medium.jpg",
+   "attribution": "(c) Federico Calledda, some rights reserved (CC BY-NC), uploaded by Federico Calledda",
+   "license": "cc-by-nc"
+  }
+ },
+ "Boletus edulis": {
+  "inat_id": 48701,
+  "common_name": "King Bolete",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Boletus edulis",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/328303120/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/328303120/medium.jpg",
+   "attribution": "(c) wp-polzin, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  }
+ },
+ "Tylopilus felleus": {
+  "inat_id": 63489,
+  "common_name": "Bitter Bolete",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Tylopilus felleus",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/307742277/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/307742277/medium.jpg",
+   "attribution": "(c) Federico Calledda, some rights reserved (CC BY-NC), uploaded by Federico Calledda",
+   "license": "cc-by-nc"
+  }
+ },
+ "Agaricus campestris": {
+  "inat_id": 143563,
+  "common_name": "Meadow Mushroom",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Agaricus campestris",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/457253795/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/457253795/medium.jpg",
+   "attribution": "(c) Felipe Hidalgo, some rights reserved (CC BY-NC), uploaded by Felipe Hidalgo",
+   "license": "cc-by-nc"
+  }
+ },
+ "Amanita virosa": {
+  "inat_id": 58685,
+  "common_name": "European Destroying Angel",
+  "wikipedia_url": "https://en.wikipedia.org/wiki/Amanita virosa",
+  "photo": {
+   "square": "https://inaturalist-open-data.s3.amazonaws.com/photos/110521312/square.jpg",
+   "medium": "https://inaturalist-open-data.s3.amazonaws.com/photos/110521312/medium.jpg",
+   "attribution": "(c) Federico Calledda, some rights reserved (CC BY-NC), uploaded by Federico Calledda",
+   "license": "cc-by-nc"
+  }
+ }
+}
