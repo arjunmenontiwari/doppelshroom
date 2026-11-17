@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -25,6 +26,7 @@ WIKI = "https://en.wikipedia.org/w/api.php"
 MUSHROOMS = "50814,152032"  # iNaturalist ids: Agaricomycetes (most mushrooms), Pezizomycetes (morels, cups)
 RANKS = ("genus", "family", "order", "class", "phylum")  # most specific first
 MIN_OVERLAP = 300  # two barcodes that share fewer positions than this are not compared
+RECHECK = 30 * 24 * 3600  # seconds before a "no label" answer is asked again
 ncbi = threading.Lock()  # NCBI allows 3 requests a second, so only one visitor fetches at a time
 
 with open(ROOT / "species.csv", newline="") as f:
@@ -98,8 +100,10 @@ def labels(names):
     todo = []
     for n in set(names) - set(out):
         path = cache_path("label", n)
-        if path.exists():
-            out[n] = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+        # "No label" is checked again after a while, in case Wikipedia has added one since.
+        if value or (path.exists() and time.time() - path.stat().st_mtime < RECHECK):
+            out[n] = value
         else:
             todo.append(n)
     for i in range(0, len(todo), 50):
