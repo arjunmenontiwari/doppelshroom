@@ -447,7 +447,7 @@ function initLens() {
     if (!file) return;
     let url;
     try { url = await shrink(file); } catch (e) { note($("lens-status"), e.message); return; }
-    $("preview").innerHTML = `<img src="${url}" alt="Your photo">`;
+    $("preview").innerHTML = `<img src="${url}" alt="Your photo"><small>Choose or drop another photo to try again</small>`;
     $("results").hidden = true;
     note($("lens-status"), "Looking at the photo, then checking each suggestion and its lookalikes. The first time can take half a minute…");
     try {

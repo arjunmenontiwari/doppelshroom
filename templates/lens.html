@@ -21,7 +21,12 @@
   <div>
     <label class="drop" id="drop">
       <input id="file" type="file" accept="image/*">
-      <span id="preview"><b>Choose a photo</b> or drop one here</span>
+      <span id="preview">
+        <svg class="drop-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="9" width="38" height="30" rx="3"/><circle cx="17" cy="19" r="4"/><path d="M5 34 L17 25 L26 31 L33 26 L43 33"/></svg>
+        <b>Drop a photo here</b>
+        <span class="button">Choose a photo</span>
+        <small>A clear photo of the cap, the gills and the stem works best.</small>
+      </span>
     </label>
     <div id="lens-status"></div>
     <p class="caption">The photo is shrunk in your browser and sent to Google's Gemini, which suggests species names. This site does not keep it. On the free tier Google may use what is sent to improve its products, so do not upload anything private.</p>
