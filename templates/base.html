@@ -15,7 +15,7 @@
 <header class="top">
   <a class="brand" href="/">Doppelshroom</a>
   <nav>
-    {% for href, label in [("/", "Pairs"), ("/search", "Search"), ("/tree", "Tree"), ("/distances", "Distances"), ("/map", "Map"), ("/method", "How it works"), ("/sources", "Sources")] %}
+    {% for href, label in [("/", "Search"), ("/lens", "Lens"), ("/compare", "Compare"), ("/quiz", "Quiz"), ("/glossary", "Glossary"), ("/method", "How it works"), ("/sources", "Sources")] %}
     <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}>{{ label }}</a>
     {% endfor %}
   </nav>

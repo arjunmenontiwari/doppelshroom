@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Glossary{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Glossary</div>
+  <div>
+    <h1>The words, explained</h1>
+    <p class="lede">The parts of a mushroom that experts look at, and the DNA terms used on this site.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">A mushroom</div>
+  <div>
+    <figure class="diagram">
+      <svg viewBox="0 0 560 330" role="img" aria-label="Labelled drawing of a mushroom: cap, gills, ring, stem, volva and mycelium">
+        <path class="soil" d="M0 262 H560 V330 H0 Z"/>
+        <path class="part" d="M150 120 C150 50 410 50 410 120 Z"/>
+        <path class="part" d="M162 120 H398 L370 134 H190 Z"/>
+        <g class="thin">
+          <path d="M200 121 L215 133 M230 121 L240 133 M260 121 L265 133 M290 121 L290 133 M320 121 L315 133 M350 121 L340 133 M372 121 L360 133"/>
+        </g>
+        <path class="part" d="M270 134 H290 L294 262 H266 Z"/>
+        <path class="part" d="M262 160 L298 160 L304 172 L256 172 Z"/>
+        <path class="part" d="M248 262 C248 236 262 232 268 240 L292 240 C298 232 312 236 312 262 Z"/>
+        <g class="thin">
+          <path d="M252 268 C230 285 200 290 170 300 M280 268 C282 290 272 305 280 322 M306 268 C330 284 360 288 400 296 M262 268 C250 295 228 310 205 318"/>
+        </g>
+        <g class="lead">
+          <path d="M405 92 H470"/><path d="M380 128 L470 140"/><path d="M300 166 H470"/>
+          <path d="M292 210 H470"/><path d="M310 250 H470"/><path d="M380 292 H470"/>
+        </g>
+        <g class="label">
+          <text x="476" y="96">Cap</text><text x="476" y="144">Gills</text><text x="476" y="170">Ring</text>
+          <text x="476" y="214">Stem</text><text x="476" y="254">Volva</text><text x="476" y="296">Mycelium</text>
+        </g>
+      </svg>
+      <figcaption class="caption">The shape of an Amanita, the genus with most deadly species. Not every mushroom has a ring or a volva, and the volva is often hidden in the soil.</figcaption>
+    </figure>
+
+    <dl class="terms">
+      <div id="cap"><dt>Cap</dt><dd>The top of the mushroom. Its colour, size and texture change with age and weather, so the cap alone is a poor guide.</dd></div>
+      <div id="gills"><dt>Gills</dt><dd>Thin blades under the cap where spores are made. How they join the stem, and their colour, matter for identification.</dd></div>
+      <div id="ridges"><dt>False gills</dt><dd>Blunt, forking ridges instead of true blades, as in chanterelles. Their lookalikes, such as the false chanterelle, have true gills.</dd></div>
+      <div id="pores"><dt>Pores</dt><dd>A sponge of tiny tubes under the cap instead of gills, as in boletes.</dd></div>
+      <div id="ring"><dt>Ring</dt><dd>A skirt on the stem. It is what is left of a thin veil that covered the gills while the mushroom was young.</dd></div>
+      <div id="volva"><dt>Volva</dt><dd>A cup at the base of the stem, left by a veil that wrapped the whole young mushroom. It is a sign of Amanita, and it is easy to miss if the mushroom is cut instead of dug up.</dd></div>
+      <div id="stem"><dt>Stem</dt><dd>Also called the stipe. Whether it is hollow, scaly, bruising or swollen at the base can separate lookalikes.</dd></div>
+      <div id="spore-print"><dt>Spore print</dt><dd>The colour of the spores, seen by leaving a cap on paper for some hours. Two mushrooms that look the same can drop white and brown spores.</dd></div>
+      <div id="mycelium"><dt>Mycelium</dt><dd>The main body of the fungus: a network of threads, called hyphae, in soil or wood. A mushroom is only its fruiting body, the part that spreads spores.</dd></div>
+      <div id="mycorrhizal"><dt>Mycorrhizal</dt><dd>Living in partnership with tree roots, trading nutrients for sugar. Chanterelles, boletes and Amanitas are mycorrhizal, so they grow near particular trees.</dd></div>
+      <div id="saprotroph"><dt>Saprotroph</dt><dd>A fungus that feeds on dead material such as fallen wood or leaves.</dd></div>
+      <div id="lookalike"><dt>Lookalike</dt><dd>On this site, a species that iNaturalist observers have confused with another one, counted from identifications that were later corrected.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="its">
+  <div class="tag">The barcode</div>
+  <div>
+    <figure class="diagram">
+      <svg viewBox="0 0 640 150" role="img" aria-label="Ribosomal DNA: the 18S gene, the ITS1 spacer, the 5.8S gene, the ITS2 spacer and the 28S gene. The ITS barcode covers ITS1, 5.8S and ITS2.">
+        <path class="lead" d="M0 70 H640"/>
+        <rect class="gene" x="10" y="52" width="170" height="36"/>
+        <rect class="spacer" x="180" y="52" width="110" height="36"/>
+        <rect class="gene" x="290" y="52" width="60" height="36"/>
+        <rect class="spacer" x="350" y="52" width="110" height="36"/>
+        <rect class="gene" x="460" y="52" width="170" height="36"/>
+        <g class="label on-gene"><text x="95" y="75">18S gene</text><text x="320" y="75">5.8S</text><text x="545" y="75">28S gene</text></g>
+        <g class="label mid"><text x="235" y="75">ITS1</text><text x="405" y="75">ITS2</text></g>
+        <path class="lead" d="M180 108 V118 H460 V108"/>
+        <g class="label mid"><text x="320" y="140">The ITS barcode</text></g>
+        <g class="label mid small"><text x="95" y="36">builds the ribosome</text><text x="235" y="36">cut out, thrown away</text><text x="320" y="20">builds the ribosome</text><text x="405" y="36">cut out, thrown away</text><text x="545" y="36">builds the ribosome</text></g>
+      </svg>
+      <figcaption class="caption">One copy of the ribosomal DNA. A fungus has many copies in a row, which makes it easy to read.</figcaption>
+    </figure>
+
+    <dl class="terms">
+      <div id="rdna"><dt>Ribosomal DNA</dt><dd>Every cell makes proteins with ribosomes, and ribosomes are partly built from RNA. The ribosomal DNA holds the genes for three of these RNAs: 18S, 5.8S and 28S. The whole stretch is first copied into one long RNA, and the parts between the genes are then cut out.</dd></div>
+      <div id="genes"><dt>18S, 5.8S and 28S genes</dt><dd>These genes build the ribosome, so almost any change breaks it. They have barely changed in hundreds of millions of years, which is why the 5.8S gene looks almost the same in every mushroom on this site.</dd></div>
+      <div id="spacers"><dt>ITS1 and ITS2</dt><dd>The internal transcribed spacers: the parts cut out and thrown away. They do no job afterwards, so changes in them are rarely harmful and build up quickly. That makes them differ between species, even close ones.</dd></div>
+      <div id="barcode"><dt>DNA barcode</dt><dd>A short stretch of DNA that is read to tell species apart. For fungi the official barcode is the ITS region: ITS1, the 5.8S gene and ITS2. Fast-changing spacers around a gene that never changes are easy to find and easy to compare.</dd></div>
+      <div id="genbank"><dt>GenBank accession</dt><dd>The ID of a DNA sequence in GenBank, the public DNA database run by NCBI. Anyone can look a sequence up by it.</dd></div>
+      <div id="alignment"><dt>Alignment</dt><dd>Lining two sequences up so that letters that came from the same ancestral letter sit above each other. A computer finds the line-up with the most matches and the fewest gaps.</dd></div>
+      <div id="gap"><dt>Gap</dt><dd>A dash in an alignment, where one species has letters the other has lost or never had.</dd></div>
+      <div id="distance"><dt>DNA difference</dt><dd>The share of aligned positions where two barcodes differ, counting gaps. 0% means identical barcodes.</dd></div>
+      <div id="tree"><dt>Neighbour-joining tree</dt><dd>A tree built from DNA differences. It repeatedly joins the two species that are closest, after correcting for how fast each one changes. Read it from the right: the sooner two branches meet, the more similar the DNA.</dd></div>
+      <div id="ranks"><dt>Genus, family, order</dt><dd>Levels of classification, from close to distant. Species in the same genus are close relatives. Species in different orders split long ago.</dd></div>
+    </dl>
+  </div>
+</section>
+{% endblock %}
+{% block script %}{% endblock %}

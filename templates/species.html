@@ -35,13 +35,20 @@
 </section>
 
 <section>
-  <div class="tag">Where</div>
+  <div class="tag">Family tree</div>
   <div>
-    <h2>Where they are found</h2>
+    <h2>How they are related</h2>
+    <div class="scroll" id="tree"><p class="caption">Building the tree…</p></div>
+    <p class="caption">A neighbour-joining tree built from the DNA barcodes of this species and its lookalikes. Species that join near the right edge have similar DNA. The horizontal length of each branch is the amount of DNA change. The tree is rooted halfway between the two most different species, so it shows how close they are, not which came first. Lookalikes without a usable barcode are left out. <a href="/glossary#tree">How to read a tree</a></p>
+  </div>
+</section>
+
+<section id="side">
+  <div class="tag">Side by side</div>
+  <div>
+    <h2>Compare with a lookalike</h2>
     <div class="picker" id="picker"></div>
-    {% include "_maps.html" %}
-    <h2 class="sub" id="overlap-title"></h2>
-    <div class="cols" id="overlap"></div>
+    {% include "_side.html" %}
   </div>
 </section>
 {% endblock %}

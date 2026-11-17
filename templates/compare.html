@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Compare{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Compare</div>
+  <div>
+    <h1>Any two mushrooms, side by side</h1>
+    <p class="lede">Pick two species to compare their DNA, their relationship, when they appear and where they grow.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Choose</div>
+  <div class="choose">
+    {% for side in ["a", "b"] %}
+    <div>
+      <input class="field" id="pick-{{ side }}" type="search" placeholder="{{ 'First species' if side == 'a' else 'Second species' }}" aria-label="{{ 'First species' if side == 'a' else 'Second species' }}" autocomplete="off">
+      <div class="picker" id="options-{{ side }}"></div>
+      <div id="chosen-{{ side }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="side" hidden>
+  <div class="tag">Side by side</div>
+  <div>
+    <p class="summary" id="compare-summary"></p>
+    {% include "_side.html" %}
+  </div>
+</section>
+{% endblock %}
+{% block script %}<script src="/static/explore.js"></script>{% endblock %}

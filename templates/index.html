@@ -1,50 +1,86 @@
 {% extends "base.html" %}
-{% block title %}Pairs{% endblock %}
+{% block title %}Search{% endblock %}
 {% block content %}
-<section class="hero">
+<section class="head">
   <div class="tag">The question</div>
   <div>
     <h1>Are poisonous lookalikes <em>close relatives</em>, or just <em>lookalikes</em>?</h1>
-  </div>
-  <dl class="stats" id="stats"></dl>
-</section>
-
-<section>
-  <div class="tag">The idea</div>
-  <div class="prose">
-    <p>Many edible mushrooms have a double: a different species that looks so similar that people mix them up. Some of those doubles are poisonous.</p>
-    <p>If two mushrooms look alike, are they related? Looks cannot answer that. DNA can.</p>
-    <p>This site compares one short stretch of DNA, called a barcode, from each species. The more two barcodes differ, the more distantly related the species are.</p>
-    <p><a href="/method">How the comparison works</a></p>
+    <p class="lede">Many edible mushrooms have a double that people mix them up with, and some doubles are poisonous. Looks cannot say whether two mushrooms are related. DNA can. Find any mushroom to see its lookalikes and how closely related they are.</p>
   </div>
 </section>
 
 <section>
-  <div class="tag">The answer</div>
+  <div class="tag">Today's mix-up</div>
+  <div id="spotlight"><p class="caption">Looking up today's pair…</p></div>
+</section>
+
+<section>
+  <div class="tag">By name</div>
   <div>
-    <h2>Five pairs, closest relatives first</h2>
-    <p class="summary" id="summary"></p>
-    <div class="pair pair-head">
-      <span>Pair</span><span>Edible</span><span>DNA difference</span><span>Lookalike</span><span>Relationship</span>
+    <input class="field" id="name" type="search" placeholder="chanterelle, Amanita, death cap" aria-label="Mushroom name" autocomplete="off">
+    <div class="cards" id="name-results"></div>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Describe it</div>
+  <div>
+    <form class="fields" id="describe-form">
+      <input class="field" id="describe" type="search" placeholder="orange funnel mushroom in a pine forest in Scotland" aria-label="Describe the mushroom" maxlength="200" autocomplete="off">
+      <button class="button" type="submit">Find</button>
+    </form>
+    <p class="summary" id="describe-title"></p>
+    <div class="cards" id="describe-results"></div>
+    <p class="caption">Describe its colour, shape, size, habitat or place. An AI (Google Gemini) turns your words into possible species names. Each name is then checked against iNaturalist, and everything shown comes from the databases. The AI's suggestions can be wrong.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">By place</div>
+  <div>
+    <div class="fields">
+      <input class="field" id="place" type="search" placeholder="A country, region or park" aria-label="Place" autocomplete="off">
+      <select class="field" id="month" aria-label="Month">
+        <option value="">Any month</option>
+        {% for m in ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
+        <option value="{{ loop.index }}">{{ m }}</option>
+        {% endfor %}
+      </select>
     </div>
-    <div class="pairs" id="pairs"></div>
-    <p class="caption">The bar is the share of DNA positions that differ between the two barcodes. A shorter bar means closer relatives. Select a pair to see it in the tree.</p>
-    <dl class="gloss">
-      <div><dt>Same family</dt><dd>Close relatives. About as close as a lion and a house cat.</dd></div>
-      <div><dt>Same order</dt><dd>Distant relatives. About as close as a cat and a dog.</dd></div>
-      <div><dt>Different orders</dt><dd>Not close at all. About as far apart as a cat and a mouse.</dd></div>
-    </dl>
+    <div class="picker" id="place-options"></div>
+    <p class="summary" id="place-title"></p>
+    <div class="cards" id="place-results"></div>
+    <p class="caption">Species with confirmed observations on iNaturalist, most recorded first. A species missing from the list can still grow there.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Near you</div>
+  <div>
+    <div class="fields">
+      <button class="button" id="locate" type="button">Use my location</button>
+      <select class="field" id="near-month" aria-label="Month">
+        {% for m in ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
+        <option value="{{ loop.index }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="summary" id="near-title"></p>
+    <div class="cards" id="near-results"></div>
+    <p class="caption">Species with confirmed iNaturalist records within 50 km of you in that month. Your location is rounded to about 10 km before it is sent, and it is not stored.</p>
   </div>
 </section>
 
 <section>
   <div class="tag">Explore</div>
   <div class="doors">
-    <a href="/search"><b>Search</b><span>Look up any mushroom and its lookalikes.</span><i>→</i></a>
-    <a href="/tree"><b>Tree</b><span>All ten species in one family tree.</span><i>→</i></a>
-    <a href="/distances"><b>Distances</b><span>Compare any two species.</span><i>→</i></a>
-    <a href="/map"><b>Map</b><span>Where each pair has been recorded.</span><i>→</i></a>
-    <a href="/method"><b>How it works</b><span>From a mushroom to a tree, in four steps.</span><i>→</i></a>
+    <a href="/lens"><b>Lens</b><span>Upload a photo to see possible matches and their dangerous lookalikes.</span><i>→</i></a>
+    <a href="/compare"><b>Compare</b><span>Any two species side by side: DNA, season and maps.</span><i>→</i></a>
+    <a href="/quiz"><b>Quiz</b><span>Can you tell a mushroom from its lookalike?</span><i>→</i></a>
+    <a href="/glossary"><b>Glossary</b><span>Gills, volvas, spore prints and DNA barcodes explained.</span><i>→</i></a>
+    <a href="/method"><b>How it works</b><span>From a mushroom to a DNA comparison, in three steps.</span><i>→</i></a>
+    <a href="/sources"><b>Sources</b><span>Where every fact on this site comes from.</span><i>→</i></a>
   </div>
 </section>
 {% endblock %}
+{% block script %}<script src="/static/explore.js"></script>{% endblock %}

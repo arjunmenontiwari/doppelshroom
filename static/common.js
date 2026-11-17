@@ -1,5 +1,5 @@
 // Helpers shared by every page.
-const STATUS = { edible: "Edible", poisonous: "Poisonous", inedible: "Inedible" };
+const STATUS = { edible: "Edible", inedible: "Inedible", caution: "Caution", poisonous: "Poisonous", deadly: "Deadly" };
 const VERDICT = { genus: "Same genus", family: "Same family", order: "Same order", class: "Different orders", phylum: "Different classes" };
 
 const $ = (id) => document.getElementById(id);
@@ -14,12 +14,13 @@ const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};
 function shape(status, x, y, r) {
   const cls = `class="mark ${status}"`;
   if (status === "edible") return `<rect ${cls} x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}"/>`;
-  if (status === "poisonous") return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y + r} ${x - r - 1},${y + r}"/>`;
-  if (status === "inedible") return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y} ${x},${y + r + 1} ${x - r - 1},${y}"/>`;
+  if (status === "poisonous" || status === "deadly") return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y + r} ${x - r - 1},${y + r}"/>`;
+  if (status === "inedible" || status === "caution") return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y} ${x},${y + r + 1} ${x - r - 1},${y}"/>`;
   return `<circle class="mark none" cx="${x}" cy="${y}" r="${r}"/>`; // no label in the curated list
 }
 const icon = (status) => `<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true">${shape(status, 0, 0, 5)}</svg>`;
-const statusTag = (s) => `<span class="status">${icon(s.status)}${STATUS[s.status] || "No label"}</span>`;
+const fromWiki = (s) => (s.label && s.label.from === "wikipedia" ? " (Wikipedia)" : "");
+const statusTag = (s) => `<span class="status">${icon(s.status)}${STATUS[s.status] || "No label"}${fromWiki(s)}</span>`;
 
 // Two maps side by side that move together. Returns show([a, b]), which puts one species on each.
 function twinMaps() {

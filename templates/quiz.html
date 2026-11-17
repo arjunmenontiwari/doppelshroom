@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Quiz{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Quiz</div>
+  <div>
+    <h1>Real or lookalike?</h1>
+    <p class="lede">Each photo shows one of two species that people often mix up. Which one is it?</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">Remember</div>
+  <div class="warning">
+    <p><b>This is practice in noticing differences, not in deciding what to eat.</b> Experts do not identify mushrooms from one photo, and getting these right does not make any wild mushroom safe.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag" id="score">Score 0 of 0</div>
+  <div>
+    <figure class="mystery" id="mystery"><p class="caption">Finding a photo…</p></figure>
+    <p class="summary">Is this photo one of these two?</p>
+    <div class="choices" id="choices"></div>
+    <div id="reveal"></div>
+  </div>
+</section>
+{% endblock %}
+{% block script %}<script src="/static/explore.js"></script>{% endblock %}
