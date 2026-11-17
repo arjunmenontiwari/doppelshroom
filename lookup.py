@@ -118,6 +118,7 @@ def labels(names):
 
 
 def with_labels(cards):
+    fill_photos(cards)
     found = labels([c["name"] for c in cards])
     for c in cards:
         c["label"] = found.get(c["name"])
@@ -125,17 +126,44 @@ def with_labels(cards):
     return cards
 
 
+def pick_photo(taxon):
+    """The main photo if it has an open licence, otherwise the first of the species' other photos that does."""
+    options = [taxon.get("default_photo")] + [p["photo"] for p in taxon.get("taxon_photos", [])]
+    p = next((p for p in options if p and p.get("license_code")), None)
+    return p and {"square": p["square_url"], "medium": p["medium_url"], "attribution": p["attribution"]}
+
+
+def fill_photos(cards):
+    """Search results only include the main photo. For species whose main photo is not openly
+    licensed, look through their other photos: one request covers up to 30 species."""
+    todo = []
+    for c in cards:
+        path = cache_path("photo", c["id"])
+        if c["photo"]:
+            continue
+        if path.exists():
+            c["photo"] = json.loads(path.read_text(encoding="utf-8"))
+        else:
+            todo.append(c)
+    for i in range(0, len(todo), 30):
+        chunk = todo[i:i + 30]
+        try:
+            found = {t["id"]: pick_photo(t) for t in get(f"{INAT}/taxa/{','.join(str(c['id']) for c in chunk)}")["results"]}
+        except urllib.error.URLError:
+            continue  # no photo now, ask again next time
+        for c in chunk:
+            c["photo"] = found.get(c["id"])
+            save("photo", c["id"], c["photo"])
+
+
 def card(taxon, **extra):
-    """The fields the site shows for a species. Labels are added later by with_labels."""
-    photo = taxon.get("default_photo") or {}
-    licensed = bool(photo.get("license_code"))  # only show photos with a Creative Commons licence
+    """The fields the site shows for a species. Labels and missing photos are added later by with_labels."""
     ranks = {a["rank"]: a["name"] for a in taxon.get("ancestors", [])}
     return {
         "id": taxon["id"],
         "name": taxon["name"],
         "common_name": taxon.get("preferred_common_name"),
-        "photo": {"square": photo["square_url"], "medium": photo["medium_url"],
-                  "attribution": photo["attribution"]} if licensed else None,
+        "photo": pick_photo(taxon),
         "taxonomy": {r: ranks.get(r) for r in RANKS} if ranks else None,
         **extra,
     }
