@@ -8,13 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
+{% block head %}{% endblock %}
 </head>
 <body>
 
 <header class="top">
   <a class="brand" href="/">Doppelshroom</a>
   <nav>
-    {% for href, label in [("/", "Pairs"), ("/tree", "Tree"), ("/distances", "Distances"), ("/method", "How it works"), ("/sources", "Sources")] %}
+    {% for href, label in [("/", "Pairs"), ("/search", "Search"), ("/tree", "Tree"), ("/distances", "Distances"), ("/map", "Map"), ("/method", "How it works"), ("/sources", "Sources")] %}
     <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}>{{ label }}</a>
     {% endfor %}
   </nav>
@@ -25,9 +26,10 @@
 
 <footer>
   <span>Doppelshroom · a student project</span>
-  <span>Data: NCBI GenBank, NCBI Taxonomy, iNaturalist</span>
+  <span>Data: NCBI GenBank, NCBI Taxonomy, iNaturalist, GBIF, Wikipedia</span>
 </footer>
 
-<script src="/static/app.js"></script>
+<script src="/static/common.js"></script>
+{% block script %}<script src="/static/app.js"></script>{% endblock %}
 </body>
 </html>

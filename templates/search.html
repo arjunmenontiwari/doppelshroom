@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Search</div>
+  <div>
+    <h1>Look up any mushroom</h1>
+    <p class="lede">Find a species by name, or see what has been recorded in a place. Each species page shows its lookalikes and how closely related they are.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">By name</div>
+  <div>
+    <input class="field" id="name" type="search" placeholder="chanterelle, Amanita, death cap" aria-label="Mushroom name" autocomplete="off">
+    <div class="cards" id="name-results"></div>
+  </div>
+</section>
+
+<section>
+  <div class="tag">By place</div>
+  <div>
+    <div class="fields">
+      <input class="field" id="place" type="search" placeholder="A country, region or park" aria-label="Place" autocomplete="off">
+      <select class="field" id="month" aria-label="Month">
+        <option value="">Any month</option>
+        {% for m in ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
+        <option value="{{ loop.index }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="picker" id="place-options"></div>
+    <p class="summary" id="place-title"></p>
+    <div class="cards" id="place-results"></div>
+    <p class="caption">Species with confirmed observations on iNaturalist, most recorded first. A species missing from the list can still grow there.</p>
+  </div>
+</section>
+{% endblock %}
+{% block script %}<script src="/static/explore.js"></script>{% endblock %}

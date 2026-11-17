@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Map{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}
+{% block content %}
+<section class="head">
+  <div class="tag">Map</div>
+  <div>
+    <h1>Where they are found</h1>
+    <p class="lede">Two mushrooms can only be mixed up in places where both grow. These maps show where each one has been recorded.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tag">How to read it</div>
+  <ol class="notes">
+    <li><b>Pick a pair.</b> The edible species is on the left and its lookalike is on the right. The two maps move together.</li>
+    <li><b>Lighter means more records.</b> Each hexagon is coloured by how many times the species was recorded inside it.</li>
+    <li><b>Empty does not mean absent.</b> Records follow people. A place with few observers looks empty even where the species grows.</li>
+  </ol>
+</section>
+
+<section>
+  <div class="tag">Figure 3</div>
+  <div>
+    <div class="picker" id="picker"></div>
+    {% include "_maps.html" %}
+  </div>
+</section>
+
+<section>
+  <div class="tag">Overlap</div>
+  <div>
+    <h2 id="overlap-title"></h2>
+    <div class="cols" id="overlap"></div>
+    <p class="caption">Only countries with at least 10 records of a species are counted, most records first. A species can grow in a country that is not listed for it.</p>
+  </div>
+</section>
+{% endblock %}

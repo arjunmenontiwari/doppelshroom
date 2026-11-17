@@ -1,28 +1,12 @@
-const STATUS = { edible: "Edible", poisonous: "Poisonous", inedible: "Inedible" };
-const VERDICT = { family: "Same family", order: "Same order", class: "Different orders", phylum: "Different classes" };
 const RANKS = ["phylum", "class", "order", "family", "genus"];
 
 let species, byId, comparisons, cmp, alignments, nodes, leaves;
 let pinned = null;
 const edgeSets = new Map(); // tree edge element -> set of species below that edge
 
-const $ = (id) => document.getElementById(id);
 const key = (a, b) => [a, b].sort().join("|");
-const pct = (d) => `${Math.round(d * 100)}%`;
-const verdict = (c) => VERDICT[c.shared_rank] || "Different phyla";
 const partner = (id) => species.find((s) => s.pair === byId[id].pair && s.id !== id).id;
-const common = (s) => (s.common_name || s.name).replace(/(^|\s)\w/g, (ch) => ch.toUpperCase());
 const lookalikes = () => comparisons.filter((c) => c.pair).sort((p, q) => p.distance - q.distance);
-
-// Status is drawn as shape + colour, so it never depends on colour alone.
-function shape(status, x, y, r) {
-  const cls = `class="mark ${status}"`;
-  if (status === "edible") return `<rect ${cls} x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}"/>`;
-  if (status === "poisonous") return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y + r} ${x - r - 1},${y + r}"/>`;
-  return `<polygon ${cls} points="${x},${y - r - 1} ${x + r + 1},${y} ${x},${y + r + 1} ${x - r - 1},${y}"/>`;
-}
-const icon = (status) => `<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true">${shape(status, 0, 0, 5)}</svg>`;
-const statusTag = (s) => `<span class="status">${icon(s.status)}${STATUS[s.status]}</span>`;
 
 function describe(c) {
   const taxon = c.shared_taxon ? ` (${c.shared_taxon})` : "";
@@ -258,8 +242,28 @@ function renderSources() {
     <td><a href="${s.source}">${new URL(s.source).hostname}</a></td>
     <td><a href="https://www.ncbi.nlm.nih.gov/nuccore/${s.accession}">${s.accession}</a></td>
     <td><a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${s.taxonomy.taxid}">${s.taxonomy.family}, ${s.taxonomy.order}</a></td>
+    <td><a href="https://www.gbif.org/species/${s.gbif.gbif_key}">${s.gbif.records.toLocaleString("en")}</a></td>
     <td class="credit">${s.photo ? `${s.photo.attribution} · <a href="https://www.inaturalist.org/taxa/${s.inat_id}">iNaturalist</a>` : ""}</td>
   </tr>`).join("");
+}
+
+function renderMap() {
+  const show = twinMaps();
+  const pairs = lookalikes();
+  const edibleFirst = (c) => (byId[c.a].status === "edible" ? [c.a, c.b] : [c.b, c.a]).map((id) => byId[id]);
+  const pick = (c) => {
+    show(edibleFirst(c));
+    document.querySelectorAll("#picker button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.key === key(c.a, c.b)));
+    history.replaceState(null, "", "#" + key(c.a, c.b)); // shareable link
+  };
+
+  $("picker").innerHTML = [...pairs].sort((p, q) => p.pair - q.pair).map((c) => {
+    const [e, o] = edibleFirst(c);
+    return `<button data-key="${key(c.a, c.b)}"><span class="no">${c.pair}</span>${common(e)} and ${common(o)}</button>`;
+  }).join("");
+  document.querySelectorAll("#picker button").forEach((b) => b.addEventListener("click", () => pick(cmp.get(b.dataset.key))));
+
+  pick(cmp.get(decodeURIComponent(location.hash.slice(1))) || pairs[0]);
 }
 
 async function main() {
@@ -276,6 +280,7 @@ async function main() {
   if ($("heat")) renderHeat();
   if ($("strip")) renderMethod();
   if ($("sources")) renderSources();
+  if ($("picker")) renderMap();
   if ($("legend")) $("legend").innerHTML = Object.keys(STATUS).map((s) => `<span>${icon(s)}${STATUS[s]}</span>`).join("");
 
   const linked = decodeURIComponent(location.hash.slice(1));

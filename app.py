@@ -1,17 +1,22 @@
-"""Web app. Serves precomputed data; nothing here calls NCBI or iNaturalist."""
+"""Web app. The five pairs are served from precomputed files; any other species is looked up live."""
 import csv
 import itertools
 import json
+import urllib.error
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+import lookup
+
 ROOT = Path(__file__).parent
 RANKS = ("family", "order", "class", "phylum")  # most specific first
-PAGES = {"/": "index.html", "/tree": "tree.html", "/distances": "distances.html",
-         "/method": "method.html", "/sources": "sources.html"}
+PAGES = {"/": "index.html", "/tree": "tree.html", "/distances": "distances.html", "/map": "map.html",
+         "/method": "method.html", "/sources": "sources.html", "/search": "search.html",
+         "/species/{inat_id}": "species.html"}
 
 
 def read_json(name):
@@ -21,6 +26,7 @@ def read_json(name):
 def load_species():
     taxonomy = read_json("taxonomy.json")
     info = read_json("species_info.json")
+    occurrences = read_json("occurrences.json")
     accessions = dict(line[1:].split()[:2]
                       for line in (ROOT / "mushrooms.fasta").read_text().splitlines()
                       if line.startswith(">"))
@@ -34,6 +40,7 @@ def load_species():
         "source": r["source"],
         "accession": accessions.get(sid),
         "taxonomy": taxonomy.get(r["species"]),
+        "gbif": occurrences.get(r["species"]),
         **(info.get(r["species"]) or {}),
     } for r in rows]
 
@@ -66,6 +73,48 @@ DATA = {
 
 app = FastAPI(title="Doppelshroom")
 templates = Jinja2Templates(directory=ROOT / "templates")
+
+
+@app.exception_handler(urllib.error.URLError)
+def source_down(request, error):
+    return JSONResponse({"detail": "A data source did not answer. Try again in a moment."}, status_code=502)
+
+
+def found(value):
+    if value is None:
+        raise HTTPException(status_code=404, detail="not a mushroom species")
+    return value
+
+
+# Live lookups for any species (see lookup.py). These must come before /api/{name}.
+@app.get("/api/find")
+def find(q: str = Query(min_length=2, max_length=60)):
+    return lookup.search(q)
+
+
+@app.get("/api/places")
+def places(q: str = Query(min_length=2, max_length=60)):
+    return lookup.places(q)
+
+
+@app.get("/api/place/{place_id}")
+def place(place_id: int, month: int | None = Query(None, ge=1, le=12)):
+    return lookup.in_place(place_id, month)
+
+
+@app.get("/api/profile/{inat_id}")
+def profile(inat_id: int):
+    return found(lookup.profile(inat_id))
+
+
+@app.get("/api/dna/{inat_id}")
+def dna(inat_id: int):
+    return found(lookup.dna(inat_id))
+
+
+@app.get("/api/occurrences")
+def occurrences(name: str = Query(pattern=r"^[A-Za-z][A-Za-z .-]{2,60}$")):
+    return found(lookup.gbif(name))
 
 
 @app.get("/api/{name}")
