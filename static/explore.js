@@ -424,53 +424,97 @@ function initDescribe() {
   if (params.get("d")) { $("describe").value = params.get("d"); run(params.get("d")); }
 }
 
-// Shrink a photo in the browser before sending: faster, and the original never leaves the device.
-function shrink(file, max = 1024) {
+// Shrink a picture in the browser before sending: faster, and the original never leaves the device.
+function toJpeg(source, width, height, max = 1024) {
+  const scale = Math.min(1, max / Math.max(width, height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+function shrink(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, max / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(img.src);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
-    };
+    img.onload = () => { URL.revokeObjectURL(img.src); resolve(toJpeg(img, img.width, img.height)); };
     img.onerror = () => reject(new Error("That file could not be read as an image."));
     img.src = URL.createObjectURL(file);
   });
 }
 
 function initLens() {
-  const look = async (file) => {
-    if (!file) return;
-    let url;
-    try { url = await shrink(file); } catch (e) { note($("lens-status"), e.message); return; }
-    $("preview").innerHTML = `<img src="${url}" alt="Your photo"><small>Choose or drop another photo to try again</small>`;
-    $("results").hidden = true;
-    note($("lens-status"), "Looking at the photo, then checking each suggestion and its lookalikes. The first time can take half a minute…");
-    try {
-      const r = await api("/api/lens", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: url.split(",")[1], mime: "image/jpeg" }),
-      });
-      if (!r.matches.length) {
-        note($("lens-status"), "No mushroom was recognised. Try a clear photo of the whole mushroom, including the stem and the underside of the cap.");
-        return;
-      }
-      $("lens-status").innerHTML = "";
-      cards($("matches"), r.matches, "");
-      r.dangerous.forEach((d) => { d.note = `Mistaken for ${d.mixed_with.join(", ")}`; d.count = 0; });
-      cards($("dangerous"), r.dangerous, "None of the possible matches has a poisonous lookalike on record. That does not make any of them safe.");
-      $("results").hidden = false;
-    } catch (e) { note($("lens-status"), e.message); }
-  };
-  $("file").addEventListener("change", () => look($("file").files[0]));
   const drop = $("drop");
+  const fromFile = async (file) => {
+    if (!file) return;
+    try { look(await shrink(file)); } catch (e) { note($("lens-status"), e.message); }
+  };
+
+  // Camera: a live preview inside the drop zone. The browser asks for permission first,
+  // and only offers this on https or localhost, so the button stays hidden elsewhere.
+  let stream = null;
+  const stopCamera = () => {
+    if (stream) stream.getTracks().forEach((t) => t.stop());
+    stream = null;
+    $("video").srcObject = null;
+    $("camera").hidden = true;
+    $("start").hidden = false;
+  };
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) $("camera-open").hidden = false;
+  $("camera-open").addEventListener("click", async () => {
+    $("lens-status").innerHTML = "";
+    try {
+      // "environment" asks a phone for its back camera; a laptop just uses its webcam.
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } }, audio: false });
+    } catch (e) {
+      note($("lens-status"), e.name === "NotAllowedError"
+        ? "Camera access was not allowed. You can allow it in your browser's settings, or choose a photo instead."
+        : "No camera could be opened. You can choose a photo instead.");
+      return;
+    }
+    $("video").srcObject = stream;
+    $("start").hidden = true;
+    $("camera").hidden = false;
+  });
+  $("snap").addEventListener("click", () => {
+    const v = $("video");
+    if (!v.videoWidth) return; // the picture has not started yet
+    const url = toJpeg(v, v.videoWidth, v.videoHeight);
+    stopCamera();
+    look(url);
+  });
+  $("camera-close").addEventListener("click", stopCamera);
+  window.addEventListener("pagehide", stopCamera);
+
+  $("file").addEventListener("change", () => { fromFile($("file").files[0]); $("file").value = ""; });
   drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); look(e.dataTransfer.files[0]); });
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); stopCamera(); fromFile(e.dataTransfer.files[0]); });
+}
+
+// Send a picture (a JPEG data URL) to the lens and show what comes back.
+async function look(url) {
+  $("preview").innerHTML = `<img src="${url}" alt="Your photo">`;
+  $("preview").hidden = false;
+  $("drop").classList.add("has-photo");
+  $("choose").textContent = "Choose another";
+  $("results").hidden = true;
+  note($("lens-status"), "Looking at the photo, then checking each suggestion and its lookalikes. The first time can take half a minute…");
+  try {
+    const r = await api("/api/lens", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: url.split(",")[1], mime: "image/jpeg" }),
+    });
+    if (!r.matches.length) {
+      note($("lens-status"), "No mushroom was recognised. Try a clear photo of the whole mushroom, including the stem and the underside of the cap.");
+      return;
+    }
+    $("lens-status").innerHTML = "";
+    cards($("matches"), r.matches, "");
+    r.dangerous.forEach((d) => { d.note = `Mistaken for ${d.mixed_with.join(", ")}`; d.count = 0; });
+    cards($("dangerous"), r.dangerous, "None of the possible matches has a poisonous lookalike on record. That does not make any of them safe.");
+    $("results").hidden = false;
+  } catch (e) { note($("lens-status"), e.message); }
 }
 
 if ($("name")) initSearch();
