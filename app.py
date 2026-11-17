@@ -82,6 +82,15 @@ app = FastAPI(title="Doppelshroom")
 templates = Jinja2Templates(directory=ROOT / "templates")
 
 
+def asset(name):
+    # The file's last-change time goes in the link, so a browser fetches it again after every edit
+    # instead of reusing an old copy.
+    return f"/static/{name}?v={int((ROOT / 'static' / name).stat().st_mtime)}"
+
+
+templates.env.globals["asset"] = asset
+
+
 @app.exception_handler(urllib.error.URLError)
 def source_down(request, error):
     return JSONResponse({"detail": "A data source did not answer. Try again in a moment."}, status_code=502)
