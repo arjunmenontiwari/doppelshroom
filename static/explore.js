@@ -178,7 +178,7 @@ async function initSpecies() {
 // Neighbouring letters that look the same are merged into one span, so a 700-letter alignment stays light.
 function runs(cells) {
   let html = "", cls = null, text = "";
-  const flush = () => { if (text) html += cls ? `<i class="${cls}">${text}</i>` : text; text = ""; };
+  const flush = () => { if (text) html += cls ? `<i class="${cls}">${esc(text)}</i>` : esc(text); text = ""; };
   cells.forEach(([ch, k]) => { if (k !== cls) { flush(); cls = k; } text += ch; });
   flush();
   return html;
@@ -545,7 +545,7 @@ const RELATION = (r) => (["genus", "family"].includes(r) ? "close" : r === "orde
 async function initAnalysis() {
   let a;
   try { a = await api("/api/analysis"); } catch (e) { $("verdict").textContent = e.message; return; }
-  const look = a.pairs, W = 760, L = 70, R = 20;
+  const look = a.pairs, W = 760, L = 100, R = 20; // L leaves room for the row labels
   const max = Math.min(a.saturated, Math.max(...look.map((p) => p.k2p), ...a.random_k2p) * 1.05);
   const X = (v) => L + (Math.min(v, max) / max) * (W - L - R);
   const axis = (y) => [0, max / 4, max / 2, (3 * max) / 4, max].map((v) =>
@@ -591,10 +591,12 @@ async function initAnalysis() {
     const y = 12 + i * rowH, ok = g.gap > 0;
     return `<a href="/species/${g.id}"><text class="axis" x="${LG - 12}" y="${y + 4}" text-anchor="end">${esc(common(g))}</text></a>
       <line class="${ok ? "gap-yes" : "gap-no"}" x1="${XG(g.within)}" x2="${XG(g.between)}" y1="${y}" y2="${y}"/>
-      <circle class="gap-dot" cx="${XG(g.within)}" cy="${y}" r="3.5"><title>${esc(g.name)}: its own ${g.barcodes} barcodes differ by up to ${g.within.toFixed(3)}</title></circle>
-      <circle class="gap-dot" cx="${XG(g.between)}" cy="${y}" r="3.5"><title>Closest lookalike, ${esc(g.nearest)}: ${g.between.toFixed(3)}</title></circle>`;
+      <circle class="gap-dot own" cx="${XG(g.within)}" cy="${y}" r="3.5"><title>${esc(g.name)}: its own ${g.barcodes} barcodes differ by up to ${g.within.toFixed(3)}</title></circle>
+      <circle class="gap-dot near" cx="${XG(g.between)}" cy="${y}" r="3.5"><title>Closest lookalike, ${esc(g.nearest)}: ${g.between.toFixed(3)}</title></circle>`;
   }).join("");
-  $("gaps").innerHTML = `<svg viewBox="0 0 ${W} ${GH}" role="img" aria-label="Barcode gap for each species">${svg}</svg>`;
+  $("gaps").innerHTML = `<p class="key"><span><svg width="10" height="10" viewBox="-5 -5 10 10"><circle class="gap-dot own" r="3.5"/></svg>Own barcodes, most different pair</span>
+    <span><svg width="10" height="10" viewBox="-5 -5 10 10"><circle class="gap-dot near" r="3.5"/></svg>Closest lookalike</span>
+    <span><i class="gapkey yes"></i>Gap: barcode tells them apart</span><span><i class="gapkey no"></i>Overlap</span></p><svg viewBox="0 0 ${W} ${GH}" role="img" aria-label="Barcode gap for each species">${svg}</svg>`;
   const withGap = gaps.filter((g) => g.gap > 0).length;
   $("gap-result").textContent = `${withGap} of ${gaps.length} species have a barcode gap, so their ITS barcode alone separates them from every lookalike on record.`;
 

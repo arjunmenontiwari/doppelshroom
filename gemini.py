@@ -1,6 +1,8 @@
 """Gemini turns words or a photo into candidate species names, and writes short facts and preparation steps."""
 import json
 import os
+import threading
+import time
 import urllib.request
 from pathlib import Path
 
@@ -42,6 +44,21 @@ class Unavailable(Exception):
     pass
 
 
+# Most AI answers are cached, so only new questions count. This caps them across all visitors, so nobody can
+# use up the API key's free quota by asking thousands of new questions.
+CALLS_PER_HOUR = int(os.environ.get("GEMINI_CALLS_PER_HOUR", 300))
+_calls, _calls_lock = [], threading.Lock()
+
+
+def spend():
+    now = time.time()
+    with _calls_lock:
+        _calls[:] = [t for t in _calls if now - t < 3600]
+        if len(_calls) >= CALLS_PER_HOUR:
+            raise Unavailable("The AI helper has had a busy hour. Try again later.")
+        _calls.append(now)
+
+
 def read_key():
     if os.environ.get("GEMINI_API_KEY"):
         return os.environ["GEMINI_API_KEY"]
@@ -58,6 +75,7 @@ KEY = read_key()
 def ask(models, instruction, parts, schema):
     if not KEY:
         raise Unavailable("The AI helper is not set up on this server.")
+    spend()
     body = json.dumps({
         "systemInstruction": {"parts": [{"text": instruction}]},
         "contents": [{"parts": parts}],

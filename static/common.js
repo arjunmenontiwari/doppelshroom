@@ -10,15 +10,14 @@ const common = (s) => (s.common_name ? s.common_name.replace(/(^|\s)\w/g, (ch) =
 // Text from outside databases is escaped before it goes into the page.
 const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
 
-// Theme: follows the device until the visitor picks one, and the choice is remembered in this browser.
+// Theme: dark violet by default; the visitor can switch to light lilac, and the choice is remembered in this browser.
 const root = document.documentElement;
-const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
+const isDark = () => root.dataset.theme !== "light"; // dark violet unless the visitor chose the light version
 function themeButton() {
   $("theme").dataset.dark = isDark();
   $("theme").setAttribute("aria-label", isDark() ? "Switch to light mode" : "Switch to dark mode");
 }
 themeButton();
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { themeButton(); dispatchEvent(new Event("themechange")); });
 $("theme").addEventListener("click", () => {
   root.classList.add("switching");
   root.dataset.theme = isDark() ? "light" : "dark";
@@ -51,12 +50,7 @@ document.addEventListener("wheel", (e) => {
 
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Remember where a link was clicked, so the next page's ink blot spreads from there (see base.html).
-addEventListener("click", (e) => {
-  const a = e.target.closest("a[href]");
-  if (!a || a.origin !== location.origin || !e.clientX) return;
-  try { sessionStorage.setItem("ink", JSON.stringify([e.clientX, e.clientY])); } catch (err) { /* the blot starts in the middle */ }
-}, true);
+// The page transition lives in mycelium.js, loaded in <head>.
 
 // A puff of spores from a point: dots that burst out, drift down and vanish.
 function spores(x, y, n = 14) {
@@ -81,6 +75,16 @@ addEventListener("click", (e) => {
   spores(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2); // keyboard clicks have no pointer position
 });
 
+// Reveal sections, plates, brush strokes and the footer once, as they first come into view (see .reveal in style.css).
+if (!calm() && "IntersectionObserver" in window) {
+  root.classList.add("reveal");
+  const seen = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add("in"); seen.unobserve(e.target); }
+  }), { rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll("main > section:not(:first-child) > :is(h2, div, p, ul, ol, dl, figure, table), .plate, section h2, footer")
+    .forEach((el) => seen.observe(el));
+}
+
 // Page headings are split into words so they can arrive one after another.
 document.querySelectorAll("main h1:not([id])").forEach((h) => {
   h.innerHTML = h.textContent.trim().split(/\s+/).map((w, i) => `<span class="word" style="--i:${i}">${esc(w)}</span>`).join(" ");
@@ -93,18 +97,53 @@ let say = () => {};
 // per pixel scrolled, so on a short page he strolls part of the way instead of sprinting across.
 {
   const w = $("walker"), MAX_SPEED = 0.5;
-  let last = scrollY, still, clicks = 0, hush;
-  const place = () => {
+  let last = scrollY, still, clicks = 0, hush, held = false, homing = false;  // homing: running back to his spot
+  const walkX = () => {
     const room = innerWidth - 56, scrollable = document.documentElement.scrollHeight - innerHeight;
-    const x = scrollable > 0 ? (scrollY / scrollable) * Math.min(room, scrollable * MAX_SPEED) : 0;
+    return scrollable > 0 ? (scrollY / scrollable) * Math.min(room, scrollable * MAX_SPEED) : 0;
+  };
+  const place = () => {
+    if (held || homing) return;
+    const x = walkX();
     w.style.translate = `${12 + x}px 0`;
     w.classList.toggle("right", x > innerWidth / 2);
   };
+  // After being dropped he runs back to the spot his scroll position gives him, so his path never runs off the end.
+  // He aims for that spot every frame, so scrolling while he runs just moves his goal.
+  const runHome = (from) => {
+    homing = true;
+    let x = from, goal = 12 + walkX(), heading = 0;  // heading: his movement, averaged over the last few frames
+    w.classList.add("walking");
+    const step = () => {
+      if (held) { homing = false; return; }
+      // Scrolling moves him exactly as it always does; the trot only closes the distance left over from the drop.
+      const next = 12 + walkX(), scrolled = next - goal;
+      goal = next;
+      const gap = goal - (x + scrolled), trot = Math.sign(gap) * Math.min(Math.abs(gap), 2.6);  // about 155 px a second
+      const move = scrolled + trot;
+      x += move;
+      w.style.translate = `${x}px 0`;
+      heading = heading * 0.85 + move * 0.15;
+      if (Math.abs(heading) > 0.6) w.classList.toggle("back", heading < 0);  // face the way he is going overall, so he never flickers
+      w.classList.toggle("right", x > innerWidth / 2);
+      if (Math.abs(goal - x) < 1.5) {
+        homing = false;
+        last = scrollY;
+        w.classList.remove("walking");
+        place();
+        return;
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
   place();
   addEventListener("resize", place);
+  let frame = 0;
   addEventListener("scroll", () => {
-    if (calm()) return;
-    place();
+    if (calm() || homing || held) return;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(place);
     w.classList.add("walking");
     w.classList.toggle("back", scrollY < last);
     last = scrollY;
@@ -141,7 +180,68 @@ let say = () => {};
   try { greeted = sessionStorage.getItem(`greeted:${location.pathname}`); sessionStorage.setItem(`greeted:${location.pathname}`, "1"); } catch (e) { /* greet anyway */ }
   if (hello && !greeted) setTimeout(() => say(hello), 1200);
 
-  $("dopple").addEventListener("click", () => {
+  // Pick him up: drag him anywhere. He swings like a pendulum hanging from his cap, then falls back to the
+  // ground when let go and walks on from there. A press that barely moves is still a click (he talks).
+  const body = w.querySelector(".body");
+  let start = null, dragged = false, px = 0, angle = 0, spin = 0, swinging = 0;
+  const ground = () => innerHeight - 2 - 46;  // the top of the walker when he stands on the bottom edge
+  const hold = (x, y) => { w.style.translate = `${x - 20}px ${y - 6 - ground()}px`; };
+  const swing = () => {  // a damped pendulum, pushed by how fast the pointer moves sideways
+    spin += -0.03 * angle - 0.09 * spin;
+    angle += spin;
+    w.style.setProperty("--swing", `${Math.max(-60, Math.min(60, angle)).toFixed(1)}deg`);
+    if (held || Math.abs(angle) > 0.2 || Math.abs(spin) > 0.05) swinging = requestAnimationFrame(swing);
+    else w.style.removeProperty("--swing");
+  };
+  $("dopple").addEventListener("pointerdown", (e) => {
+    if (e.button) return;
+    start = [e.clientX, e.clientY]; px = e.clientX; dragged = false;
+    $("dopple").setPointerCapture(e.pointerId);
+  });
+  $("dopple").addEventListener("pointermove", (e) => {
+    if (!start) return;
+    if (!dragged && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5) return;
+    if (!dragged) {
+      dragged = held = true;
+      w.classList.add("held"); w.classList.remove("walking");
+      w.getAnimations().forEach((a) => a.cancel());
+      say(["wheee!", "hey! put me down", "ooh, i can see my house", "careful, i bruise easily"][Math.floor(Math.random() * 4)]);
+      if (!calm()) { cancelAnimationFrame(swinging); swinging = requestAnimationFrame(swing); }
+    }
+    spin -= (e.clientX - px) * 0.35;
+    px = e.clientX;
+    hold(e.clientX, e.clientY);
+  });
+  const drop = (e) => {
+    if (!start) return;
+    start = null;
+    if (!dragged) return;
+    held = false;
+    w.classList.remove("held");
+    const x = Math.max(12, Math.min(innerWidth - 44, e.clientX - 20));
+    w.classList.toggle("right", x > innerWidth / 2);
+    const height = Math.max(0, ground() - (e.clientY - 6));
+    w.style.translate = `${x}px 0`;
+    if (calm()) { place(); return; }
+    if (height < 4) { runHome(x); return; }
+    w.classList.add("falling");
+    // Falling under gravity: the time grows with the square root of the height, and he speeds up as he goes.
+    w.animate([{ translate: `${x}px ${-height}px` }, { translate: `${x}px 0` }],
+      { duration: Math.min(900, 120 + Math.sqrt(height) * 26), easing: "cubic-bezier(.55, 0, 1, .45)" }).finished.then(() => {
+      w.classList.remove("falling");
+      body.animate([{ scale: "1.25 .7" }, { scale: ".9 1.12" }, { scale: "1.05 .95" }, { scale: "1 1" }],
+        { duration: 420, easing: "ease-out" });
+      const r = $("dopple").getBoundingClientRect();
+      spores(r.left + r.width / 2, r.bottom - 4, 10);
+      if (height > 200) say(["oof", "ow. ten out of ten though", "again! again!"][Math.floor(Math.random() * 3)]);
+      setTimeout(() => runHome(x), 380);  // a moment to recover from the landing, then off he goes
+    });
+  };
+  $("dopple").addEventListener("pointerup", drop);
+  $("dopple").addEventListener("pointercancel", drop);
+
+  $("dopple").addEventListener("click", (e) => {
+    if (dragged) { dragged = false; e.preventDefault(); return; }  // the end of a drag, not a click
     clicks += 1;
     say(clicks > 8 ? "hehe stop, i'm ticklish" : QUIPS[(clicks - 1) % QUIPS.length]);
     const r = $("dopple").getBoundingClientRect();

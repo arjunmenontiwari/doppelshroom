@@ -3,21 +3,25 @@ import base64
 import binascii
 import csv
 import datetime
+import io
 import itertools
 import json
 import random
 import urllib.error
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Path as PathParam, Query, Request
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from PIL import Image
 from pydantic import BaseModel, Field
 
 import gemini
+import guard
 import lookup
 
 ROOT = Path(__file__).parent
@@ -78,7 +82,10 @@ DATA = {
     "alignments": read_json("alignments.json"),
 }
 
-app = FastAPI(title="Doppelshroom")
+app = FastAPI(title="Doppelshroom", docs_url=None, redoc_url=None, openapi_url=None)  # no public list of every route
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(guard.Guard, template=ROOT / "templates" / "base.html")  # added last, so it runs first
+Id = Annotated[int, PathParam(ge=1, le=99_999_999)]  # iNaturalist ids; anything else never reaches the outside databases
 templates = Jinja2Templates(directory=ROOT / "templates")
 
 
@@ -123,17 +130,17 @@ def places(q: str = Query(min_length=2, max_length=60)):
 
 
 @app.get("/api/place/{place_id}")
-def place(place_id: int, month: int | None = Query(None, ge=1, le=12)):
+def place(place_id: Id, month: int | None = Query(None, ge=1, le=12)):
     return lookup.in_place(place_id, month)
 
 
 @app.get("/api/profile/{inat_id}")
-def profile(inat_id: int):
+def profile(inat_id: Id):
     return found(lookup.profile(inat_id))
 
 
 @app.get("/api/dna/{inat_id}")
-def dna(inat_id: int):
+def dna(inat_id: Id):
     return found(lookup.dna(inat_id))
 
 
@@ -143,17 +150,17 @@ def occurrences(name: str = Query(pattern=r"^[A-Za-z][A-Za-z .-]{2,60}$")):
 
 
 @app.get("/api/pair")
-def pair(a: int, b: int):
+def pair(a: int = Query(ge=1, le=99_999_999), b: int = Query(ge=1, le=99_999_999)):
     return found(lookup.pair(a, b))
 
 
 @app.get("/api/family/{inat_id}")
-def family(inat_id: int):
+def family(inat_id: Id):
     return lookup.family(inat_id)  # null when too few lookalikes have a barcode
 
 
 @app.get("/api/season/{inat_id}")
-def season(inat_id: int):
+def season(inat_id: Id):
     return lookup.season(inat_id)
 
 
@@ -167,14 +174,21 @@ def near(lat: float = Query(ge=-90, le=90), lng: float = Query(ge=-180, le=180),
 def spotlight():
     day = datetime.date.today().toordinal()
     # A new mix-up every day; if one of its names is not found, move on to the next.
-    return next(m for i in range(len(lookup.MIXUPS)) if (m := lookup.mixup(day + i)))
+    found = next((m for i in range(len(lookup.MIXUPS)) if (m := lookup.mixup(day + i))), None)
+    if not found:
+        raise HTTPException(status_code=502, detail="Today's mix-up could not be looked up. Try again later.")
+    return found
 
 
 @app.get("/api/quiz")
 def quiz():
     m = None
-    while not m:
+    for _ in range(5):  # a few tries, never an endless loop if the databases are down
         m = lookup.mixup(random.randrange(len(lookup.MIXUPS)))
+        if m:
+            break
+    if not m:
+        raise HTTPException(status_code=502, detail="No quiz question could be looked up. Try again.")
     answer = random.choice([m["a"], m["b"]])
     pics = lookup.photos(answer["id"])
     if not pics:
@@ -194,12 +208,12 @@ def describe(q: str = Query(min_length=3, max_length=200)):
 
 
 @app.get("/api/facts/{inat_id}")
-def facts(inat_id: int):
+def facts(inat_id: Id):
     return found(lookup.facts(inat_id))
 
 
 @app.get("/api/prep/{inat_id}")
-def prep(inat_id: int):
+def prep(inat_id: Id):
     return found(lookup.prep(inat_id))  # 404 unless the species is labelled edible
 
 
@@ -208,13 +222,32 @@ class Photo(BaseModel):
     mime: Literal["image/jpeg", "image/png", "image/webp"]
 
 
+def clean_photo(data):
+    """The photo's actual bytes must decode as a JPEG, PNG or WebP picture, whatever the browser claimed it was.
+    It is then redrawn as a fresh JPEG, so only pixels go on to the AI: no hidden data, no location, no other file."""
+    try:
+        raw = base64.b64decode(data, validate=True)
+        with Image.open(io.BytesIO(raw)) as im:
+            if im.format not in ("JPEG", "PNG", "WEBP"):
+                return None
+            if im.width * im.height > 40_000_000:  # a tiny file can claim to be enormous (a "decompression bomb")
+                return None
+            im.load()
+            im = im.convert("RGB")
+            im.thumbnail((1600, 1600))
+            out = io.BytesIO()
+            im.save(out, "JPEG", quality=88)
+    except (binascii.Error, ValueError, OSError, Image.DecompressionBombError):
+        return None
+    return base64.b64encode(out.getvalue()).decode()
+
+
 @app.post("/api/lens")
 def lens(photo: Photo):
-    try:
-        base64.b64decode(photo.image, validate=True)
-    except binascii.Error:
-        raise HTTPException(status_code=422, detail="That file is not an image.")
-    return lookup.lens(photo.image, photo.mime)
+    clean = clean_photo(photo.image)
+    if not clean:
+        raise HTTPException(status_code=422, detail="That file is not a photo. Use a JPEG, PNG or WebP picture.")
+    return lookup.lens(clean, "image/jpeg")
 
 
 class Sequence(BaseModel):
@@ -234,12 +267,17 @@ def example_sequence():
     return lookup.example_sequence()
 
 
+_analysis = {"mtime": None, "data": None}
+
+
 @app.get("/api/analysis")
 def analysis():
     path = ROOT / "analysis.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="The analysis has not been run yet (python analyze.py).")
-    return json.loads(path.read_text(encoding="utf-8"))
+    if path.stat().st_mtime != _analysis["mtime"]:  # read once, and again only after analyze.py rewrites it
+        _analysis.update(mtime=path.stat().st_mtime, data=json.loads(path.read_text(encoding="utf-8")))
+    return _analysis["data"]
 
 
 @app.get("/api/{name}")
@@ -249,9 +287,14 @@ def api(name: str):
     return DATA[name]
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(ROOT / "static" / "favicon.ico", headers={"Cache-Control": "public, max-age=604800"})
+
+
 @app.get("/species/{inat_id}", include_in_schema=False)
 def species_page(request: Request, inat_id: str):
-    if not inat_id.isdigit():
+    if not inat_id.isdigit() or len(inat_id) > 8:
         raise HTTPException(status_code=404)
     try:
         t = lookup.taxon(int(inat_id))

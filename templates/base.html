@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{% endblock %} · Doppelshroom</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/static/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
 {# Link previews: what chat apps and social sites show when someone shares a page. #}
 {% set preview = og if og is defined else {} %}
 {% set summary = preview.description or "Are poisonous mushroom lookalikes close relatives, or just lookalikes? A DNA comparison. Educational, not an identification tool." %}
@@ -23,18 +26,10 @@ try {
   const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
   if (localStorage.getItem("walker") === "off") document.documentElement.dataset.walker = "off";
 } catch (e) {}
-// The next page is revealed by an ink blot that spreads from where the link was clicked.
-addEventListener("pagereveal", (e) => {
-  if (!e.viewTransition) return;
-  try {
-    const p = JSON.parse(sessionStorage.getItem("ink"));
-    sessionStorage.removeItem("ink");
-    if (p) { document.documentElement.style.setProperty("--ink-x", p[0] + "px"); document.documentElement.style.setProperty("--ink-y", p[1] + "px"); }
-  } catch (err) { /* no stored point: the blot spreads from the middle */ }
-});
 </script>
 <link rel="stylesheet" href="{{ asset("fonts/fonts.css") }}">
 <link rel="stylesheet" href="{{ asset("style.css") }}">
+<script src="{{ asset("mycelium.js") }}"></script>
 {% block head %}{% endblock %}
 </head>
 <body>
@@ -51,7 +46,17 @@ addEventListener("pagereveal", (e) => {
   "about": '<circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/>',
 } %}
 <header class="top">
-  <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 28 26" aria-hidden="true"><path class="cap" d="M2 13C2 3 26 3 26 13Q14 15.5 2 13Z"/><path class="stem" d="M9.5 13.6Q9 22 10 24H18Q19 22 18.5 13.6Z"/></svg>Doppelshroom</a>
+  <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><defs>
+    <radialGradient id="brand-cap" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#ff7a55"/><stop offset=".55" stop-color="#d0301f"/><stop offset="1" stop-color="#7d1710"/></radialGradient>
+    <linearGradient id="brand-stem" x1="0" x2="1"><stop offset="0" stop-color="#fff8ec"/><stop offset=".65" stop-color="#eedcbd"/><stop offset="1" stop-color="#c9ad86"/></linearGradient>
+  </defs>
+  <path d="M11.2 17.6C10.4 23 10 27.5 11 31.2Q16 32.6 21 31.2C22 27.5 21.6 23 20.8 17.6Z" fill="url(#brand-stem)" stroke="#8a7254" stroke-width=".6"/>
+  <circle cx="13.9" cy="24.2" r="1.1" fill="#2a1c13"/><circle cx="18.1" cy="24.2" r="1.1" fill="#2a1c13"/>
+  <path d="M5.5 16.4Q16 20.4 26.5 16.4Q16 18.6 5.5 16.4Z" fill="#e2cba3" stroke="#8a7254" stroke-width=".5"/>
+  <path d="M2 15.5C2 3.5 30 3.5 30 15.5C24.5 18.6 7.5 18.6 2 15.5Z" fill="url(#brand-cap)" stroke="#5c140e" stroke-width=".8"/>
+  <ellipse cx="10.5" cy="8.4" rx="3.6" ry="1.3" transform="rotate(-24 10.5 8.4)" fill="#fff" opacity=".3"/>
+  <g fill="#fffaf0"><ellipse cx="8.6" cy="11.2" rx="2" ry="1.4" transform="rotate(-18 8.6 11.2)"/><ellipse cx="16" cy="7.6" rx="1.7" ry="1.2"/>
+    <ellipse cx="23.4" cy="10.6" rx="2.1" ry="1.45" transform="rotate(20 23.4 10.6)"/><circle cx="12.4" cy="14.1" r=".9"/><circle cx="20.6" cy="14.3" r="1"/></g></svg>Doppelshroom</a>
   <nav>
     {% for href, label, icon in [("/", "Search", "search"), ("/lens", "Lens", "lens"), ("/compare", "Compare", "compare"), ("/analysis", "Analysis", "analysis"), ("/quiz", "Quiz", "quiz"), ("/glossary", "Glossary", "glossary"), ("/method", "Method", "method"), ("/sources", "Sources", "sources"), ("/about", "About", "about")] %}
     <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}><svg class="ico" viewBox="0 0 16 16" aria-hidden="true">{{ icons[icon]|safe }}</svg>{{ label }}</a>
@@ -69,19 +74,32 @@ addEventListener("pagereveal", (e) => {
 
 <div class="walker" id="walker">
   <div class="bubble" id="bubble" role="status" hidden><p id="quip"></p><button class="link" id="walker-hide" type="button">shoo, hide me</button></div>
-  <button class="dopple" id="dopple" type="button" aria-label="Dopple the mushroom: say hello">
-  <svg viewBox="0 0 28 30" aria-hidden="true">
-    <line class="leg leg-a" x1="11.5" y1="24" x2="11" y2="28.5"/><line class="leg leg-b" x1="16.5" y1="24" x2="17" y2="28.5"/>
-    <path class="stem" d="M9.5 13.6Q9 22 10 24H18Q19 22 18.5 13.6Z"/>
-    <g class="eyes"><circle cx="12.4" cy="18" r=".95"/><circle cx="15.6" cy="18" r=".95"/></g>
-    <path class="cap" d="M2 13C2 3 26 3 26 13Q14 15.5 2 13Z"/>
-    <circle class="spot" cx="8" cy="8.5" r="1.6"/><circle class="spot" cx="14.5" cy="6" r="1.3"/><circle class="spot" cx="20" cy="9.5" r="1.5"/>
+  <button class="dopple" id="dopple" type="button" aria-label="Dopple the mushroom: say hello, or drag him around">
+  <svg viewBox="0 0 40 46" aria-hidden="true">
+    <defs>
+      <radialGradient id="dp-cap" cx=".34" cy=".28" r=".85"><stop class="dp-cap-1" offset="0"/><stop class="dp-cap-2" offset=".55"/><stop class="dp-cap-3" offset="1"/></radialGradient>
+      <linearGradient id="dp-stem" x1="0" x2="1"><stop class="dp-stem-1" offset="0"/><stop class="dp-stem-2" offset=".65"/><stop class="dp-stem-3" offset="1"/></linearGradient>
+    </defs>
+    <ellipse class="shadow" cx="20" cy="44.4" rx="8.5" ry="1.4"/>
+    <g class="body">
+      <path class="leg leg-a" d="M16.6 37.5v4.2"/><path class="leg leg-b" d="M23.4 37.5v4.2"/>
+      <path class="arm arm-a" d="M14.2 28.6q-3.2 1.8-3.8 4.8"/><path class="arm arm-b" d="M25.8 28.6q3.2 1.8 3.8 4.8"/>
+      <path class="stem" d="M14 21C13 28 12.6 33 14 37.4Q20 40 26 37.4C27.4 33 27 28 26 21Z"/>
+      <g class="eyes"><ellipse cx="17.3" cy="28" rx="1" ry="1.35"/><ellipse cx="22.7" cy="28" rx="1" ry="1.35"/></g>
+      <g class="shine"><circle cx="17.6" cy="27.5" r=".38"/><circle cx="23" cy="27.5" r=".38"/></g>
+      <g class="cheeks"><ellipse cx="15.3" cy="30.7" rx="1.35" ry=".75"/><ellipse cx="24.7" cy="30.7" rx="1.35" ry=".75"/></g>
+      <path class="mouth" d="M18.7 30.9q1.3 1.2 2.6 0"/><ellipse class="mouth-o" cx="20" cy="31.4" rx=".9" ry="1.1"/>
+      <path class="gills" d="M6.5 20.2Q20 25 33.5 20.2Q20 22.6 6.5 20.2Z"/>
+      <path class="cap" d="M3 19.4C3 4.8 37 4.8 37 19.4C30 22.6 10 22.6 3 19.4Z"/>
+      <ellipse class="gloss" cx="13" cy="10.4" rx="4.4" ry="1.7" transform="rotate(-24 13 10.4)"/>
+      <g class="spots"><ellipse cx="10.4" cy="13.6" rx="2.3" ry="1.6" transform="rotate(-18 10.4 13.6)"/><ellipse cx="19.6" cy="9.4" rx="1.9" ry="1.35"/>
+        <ellipse cx="28.2" cy="12.6" rx="2.5" ry="1.7" transform="rotate(20 28.2 12.6)"/><circle cx="15" cy="17.2" r="1"/><circle cx="25.4" cy="17.4" r="1.15"/><circle cx="33" cy="17" r=".8"/></g>
+    </g>
   </svg>
-  </button>
 </div>
 
 <footer>
-  <span>Doppelshroom · grown slowly by Arjun, a student</span>
+  <span>Doppelshroom · grown slowly by Arjun Menon Tiwari, a student</span>
   <span><button class="link" id="walker-toggle" type="button">Hide the walking mushroom</button> · <a href="/privacy">Privacy and terms</a> · <a href="/sources">Sources and licences</a></span>
 </footer>
 

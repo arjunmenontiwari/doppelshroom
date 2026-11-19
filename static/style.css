@@ -1,43 +1,61 @@
 :root {
-  color-scheme: light dark;
+  /* Umber and ochre: dark forest-soil brown for everyone, ochre accents; the theme switch offers a parchment version.
+     light-dark(): the first colour applies in the light version, the second in the default dark one. */
+  color-scheme: dark;
   interpolate-size: allow-keywords;
-  /* light-dark(): the first colour in light mode, the second in dark mode. */
-  --paper: light-dark(oklch(94% 0.013 85), oklch(19% 0.006 90));
-  --wash: light-dark(oklch(90.5% 0.016 85), oklch(24.5% 0.008 90));
-  --ink: light-dark(oklch(22.1% 0.004 107), oklch(93% 0.008 90));
-  --ink-2: light-dark(oklch(46.8% 0.012 88), oklch(72% 0.012 88));
-  --line: light-dark(oklch(22.1% 0.004 107 / .14), oklch(93% 0.008 90 / .14));
-  --line-strong: light-dark(oklch(22.1% 0.004 107 / .45), oklch(93% 0.008 90 / .45));
-  --press: light-dark(oklch(34.1% 0.009 89), oklch(82% 0.009 89));
-  --edible: light-dark(oklch(51.7% 0.103 161), oklch(70% 0.12 161));
-  --poisonous: light-dark(oklch(47.6% 0.172 28), oklch(66% 0.17 28));
-  --inedible: light-dark(oklch(67.1% 0.139 80), oklch(78% 0.14 80));
-  --series-a: light-dark(oklch(53.9% 0.115 256), oklch(68% 0.11 256));
-  --series-b: light-dark(oklch(61.1% 0.139 49), oklch(72% 0.13 49));
-  --spore: light-dark(oklch(55% 0.09 65), oklch(78% 0.09 75));
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231b1b19' stroke-width='1.5'/%3E%3C/svg%3E");
- 
-  --painting-opacity: .3;
-  --washi-opacity: 1;
-  --plate-blend: multiply;
-  --plate-opacity: 1;
+  --paper: light-dark(oklch(94% 0.02 80), oklch(17% 0.025 60));
+  --wash: light-dark(oklch(90% 0.03 80), oklch(22% 0.03 60));
+  --ink: light-dark(oklch(22% 0.03 55), oklch(93% 0.02 80));
+  --ink-2: light-dark(oklch(44% 0.04 60), oklch(76% 0.035 75));
+  --line: light-dark(oklch(22% 0.03 55 / .15), oklch(93% 0.02 80 / .15));
+  --line-strong: light-dark(oklch(22% 0.03 55 / .45), oklch(93% 0.02 80 / .45));
+  /* Ochre for links, highlights and brush strokes; slate blue and ochre for two-series charts.
+     Red, green and violet are reserved for safety labels (violet = inedible or caution) and never used as decoration. */
+  --accent: light-dark(oklch(48% 0.12 65), oklch(76% 0.15 78));
+  --accent-press: light-dark(oklch(40% 0.11 62), oklch(82% 0.13 80));
+  --on-accent: light-dark(oklch(96% 0.015 80), oklch(15% 0.03 60));
+  --accent-wash: light-dark(oklch(48% 0.12 65 / .1), oklch(76% 0.15 78 / .16));
+  /* Solid accent surfaces (notice bar, buttons, Dopple's bubble): darker than the page in the dark version,
+     with ochre text and a fine ochre edge so they still read as buttons. */
+  --accent-bg: light-dark(oklch(32% 0.05 55), oklch(11% 0.02 60));
+  --accent-bg-hover: light-dark(oklch(26% 0.05 55), oklch(26% 0.05 65));
+  --on-accent-bg: light-dark(oklch(95% 0.02 80), oklch(78% 0.15 78));
+  --accent-edge: light-dark(transparent, oklch(76% 0.15 78 / .55));
+  --gold: light-dark(oklch(62% 0.14 75), oklch(76% 0.15 78));
+  --edible: light-dark(oklch(50% 0.15 150), oklch(74% 0.18 150));
+  --poisonous: light-dark(oklch(50% 0.2 27), oklch(66% 0.21 27));
+  --inedible: light-dark(oklch(48% 0.15 300), oklch(70% 0.14 300));
+  --series-a: light-dark(oklch(50% 0.1 235), oklch(72% 0.11 235));
+  --series-b: light-dark(oklch(62% 0.14 75), oklch(76% 0.15 78));
+  --spore: light-dark(oklch(55% 0.12 70), oklch(74% 0.13 76));
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23f0e6d2' stroke-width='1.5'/%3E%3C/svg%3E");
+  --painting-opacity: .22;
+  --washi-opacity: .12;
+  --plate-blend: normal;
+  --plate-opacity: .86;
   --ease: cubic-bezier(.2, .8, .2, 1);
   --serif: "Newsreader", Georgia, serif;
   --sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --gutter: clamp(16px, 4vw, 48px);
+  --measure: 40rem;  /* one width for all running text and inputs, so right edges line up */
 }
-:root[data-theme="light"] { color-scheme: light; }
-:root[data-theme="dark"] { color-scheme: dark; }
-/* Images cannot use light-dark(), so the dark versions are swapped in here. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --washi-opacity: .13; --painting-opacity: .16; --plate-blend: normal; --plate-opacity: .82; --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ebe9e4' stroke-width='1.5'/%3E%3C/svg%3E"); }
+/* The light lilac version, when chosen with the theme switch. Images cannot use light-dark(), so they are swapped here. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%233a2a1a' stroke-width='1.5'/%3E%3C/svg%3E");
+  --painting-opacity: .3;
+  --washi-opacity: .9;
+  --plate-blend: multiply;
+  --plate-opacity: 1;
 }
-:root[data-theme="dark"] { --washi-opacity: .13; --painting-opacity: .16; --plate-blend: normal; --plate-opacity: .82; --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ebe9e4' stroke-width='1.5'/%3E%3C/svg%3E"); }
 
 [hidden] { display: none !important; }
 * { box-sizing: border-box; border-radius: 0; }
 body { position: relative; min-height: 100dvh; margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
-a { color: inherit; text-underline-offset: 3px; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--accent); }
+a:hover { color: var(--accent); }
+main :is(p, li, dd, td, figcaption, small) a { color: var(--accent); }
+::selection { background: var(--accent-wash); }
 p { margin: 0 0 12px; }
 .mark.edible { fill: var(--edible); }
 .mark.poisonous, .mark.deadly { fill: var(--poisonous); }
@@ -49,8 +67,9 @@ p { margin: 0 0 12px; }
 .brand { font: 500 1.6rem/1 var(--serif); text-decoration: none; }
 nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; }
 nav a { display: inline-flex; align-items: center; gap: 7px; font: 500 14px var(--sans); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; transition: border-color .2s; }
-nav a:hover, nav a[aria-current] { border-color: var(--ink); }
-.notice { background: var(--ink); color: var(--paper); font: 500 12.5px/1.4 var(--sans); padding: 7px var(--gutter); }
+nav a:hover, nav a[aria-current] { border-color: var(--accent); }
+nav a[aria-current] { color: var(--accent); }
+.notice { background: var(--accent-bg); color: var(--on-accent-bg); font: 500 12.5px/1.4 var(--sans); padding: 7px var(--gutter); }
 footer { position: relative; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-top: 96px; padding: 14px var(--gutter); font-size: 13px; color: var(--ink-2); }
 
 section { position: relative; padding: 32px var(--gutter) 40px; }
@@ -58,25 +77,25 @@ main > section:first-child { padding-top: 52px; padding-bottom: 44px; position: 
 /* A public-domain forest painting, in one hue, behind the right side of each page's opening (set per page in base.html). */
 main > section:first-child::before { content: ""; position: absolute; inset: 0 0 0 40%; z-index: -1; background: var(--painting) center / cover;
   filter: grayscale(1); opacity: var(--painting-opacity);
-  mask: linear-gradient(to right, transparent, black 55%), linear-gradient(black 45%, transparent); mask-composite: intersect; }
+  mask: linear-gradient(to right, transparent, black 55%), linear-gradient(black 40%, transparent 88%); mask-composite: intersect; }
 
 h1 { font: 400 clamp(2.1rem, 4.2vw, 3.6rem)/1.05 var(--serif); margin: 0; max-width: 20ch; }
 h2 { font: 400 1.9rem/1.1 var(--serif); margin: 0 0 18px; }
 h3 { font: 600 14px/1.4 var(--sans); margin: 0 0 8px; }
-.lede { font: 400 1.35rem/1.4 var(--serif); max-width: 46ch; margin: 18px 0 0; }
-.prose p, .summary { font: 400 1.2rem/1.5 var(--serif); max-width: 58ch; margin: 0 0 14px; }
+.lede { font: 400 1.35rem/1.4 var(--serif); max-width: var(--measure); margin: 18px 0 0; }
+.prose p, .summary { font: 400 1.2rem/1.5 var(--serif); max-width: var(--measure); margin: 0 0 14px; }
 .prose p:last-child { margin-bottom: 0; }
 .prose p.caption { font: 13px/1.5 var(--sans); }
 sup { line-height: 0; }
 sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
-.caption { font-size: 13px; color: var(--ink-2); max-width: 78ch; margin: 12px 0 0; }
+.caption { font-size: 13px; color: var(--ink-2); max-width: var(--measure); margin: 12px 0 0; }
 /* Content that scrolls sideways fades out at the right edge; the padding keeps the fade off the last item. */
 .scroll { overscroll-behavior-x: contain; overflow-x: auto; padding-right: 32px; mask-image: linear-gradient(to right, black calc(100% - 32px), transparent); }
-.list { margin: 0; padding-left: 22px; max-width: 62ch; font: 400 1.15rem/1.5 var(--serif); }
+.list { margin: 0; padding-left: 22px; max-width: var(--measure); font: 400 1.15rem/1.5 var(--serif); }
 .list li { margin-bottom: 6px; }
 .list .caption { list-style: none; margin-left: -22px; }
 .recipes { margin: 16px 0 0; font: 500 14px var(--sans); }
-.field.seq { max-width: 760px; font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; resize: vertical; word-break: break-all; }
+.field.seq { max-width: var(--measure); font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; resize: vertical; word-break: break-all; }
 
 .gloss { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin: 32px 0 0; }
 .gloss dt { font-weight: 600; font-size: 14px; }
@@ -89,7 +108,7 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .sp small { display: block; font-size: 12px; color: var(--ink-2); margin-top: 5px; }
 .dist { display: grid; grid-template-columns: minmax(0, 1fr) 36px; gap: 10px; align-items: center; }
 .dist .track { position: relative; height: 8px; background: var(--wash); }
-.dist .track i { position: absolute; left: 0; top: 0; height: 8px; background: var(--ink); }
+.dist .track i { position: absolute; left: 0; top: 0; height: 8px; background: var(--accent); }
 .dist b { font: 600 13px var(--sans); }
 .verdict b { display: block; font: 600 13.5px var(--sans); }
 .verdict small { font-size: 12.5px; color: var(--ink-2); }
@@ -102,7 +121,7 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .strip span { padding: 7px 0; }
 .alncols span { display: grid; }
 .alncols b { font-weight: 500; padding: 6px 0; }
-.alncols .x { background: var(--ink); color: var(--paper); }
+.alncols .x { background: var(--accent); color: var(--on-accent); }
 .aln { margin: 26px 0 0; }
 .aln figcaption { font-size: 14px; margin-bottom: 8px; }
 .alnrow { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; }
@@ -113,7 +132,7 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .lineage span { padding: 6px 8px; background: var(--wash); overflow-wrap: anywhere; }
 .lineage .rank { background: none; padding-left: 0; font: 500 12px var(--sans); color: var(--ink-2); align-self: center; }
 .lineage .rank::first-letter { text-transform: uppercase; }
-.lineage .same { grid-column: span 2; background: var(--ink); color: var(--paper); text-align: center; }
+.lineage .same { grid-column: span 2; background: var(--accent); color: var(--on-accent); text-align: center; }
 .lineage em { grid-column: span 2; font: 400 1.15rem var(--serif); padding: 8px 8px 0; }
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; font-size: 14.5px; }
 .cols p { color: var(--ink-2); }
@@ -122,8 +141,8 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .picker { display: flex; flex-wrap: wrap; gap: 4px 22px; margin-bottom: 24px; }
 .picker button { padding: 4px 0; border: 0; background: none; color: inherit; font: 500 14px/1.3 var(--sans); text-align: left; cursor: pointer;
   text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; transition: text-decoration-color .2s, transform .15s var(--ease); }
-.picker button:hover { text-decoration-color: currentColor; }
-.picker button[aria-pressed="true"] { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
+.picker button:hover { color: var(--accent); text-decoration-color: currentColor; }
+.picker button[aria-pressed="true"] { color: var(--accent); text-decoration-color: currentColor; text-decoration-thickness: 2px; }
 
 /* Map */
 .maps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -139,14 +158,14 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .density i { width: 160px; height: 10px; background: linear-gradient(to right in srgb, oklch(33.4% 0.156 326), oklch(48.7% 0.166 358), oklch(65.3% 0.14 26), oklch(79% 0.108 56), oklch(87.6% 0.097 79)); }
 
 /* Search */
-.field { width: 100%; max-width: 520px; padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); font: 400 1.15rem/1.3 var(--serif); }
-.field:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+.field { width: 100%; max-width: var(--measure); padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); font: 400 1.15rem/1.3 var(--serif); }
+.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 select.field { width: auto; appearance: none; padding-right: 38px; cursor: pointer; background: var(--paper) var(--chevron) no-repeat right 14px center; }
 .fields { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .fields .field { flex: 1 1 220px; }
 .fields select.field { flex: 0 0 auto; }
 /* A search box with its button joined on: one shape instead of two. */
-.fields.joined { gap: 0; max-width: 640px; flex-wrap: nowrap; }
+.fields.joined { gap: 0; max-width: var(--measure); flex-wrap: nowrap; }
 .joined .field { max-width: none; flex: 1 1 auto; min-width: 0; border-right: 0; }
 .joined .button { flex: 0 0 auto; padding: 0 24px; }
 .button span { display: inline-block; transition: transform .15s; }
@@ -157,25 +176,25 @@ select.field { width: auto; appearance: none; padding-right: 38px; cursor: point
 .card { transition: background .2s, transform .15s var(--ease), rotate .3s var(--ease); display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; padding: 8px; text-decoration: none; }
 .card:hover, a.look:hover { background: var(--wash); }
 a.look { transition: background .2s; }
-.card:focus-visible, a.look:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.card:focus-visible, a.look:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .card img, .nophoto { width: 64px; height: 64px; object-fit: cover; display: block; background: var(--wash); }
 .card b { display: block; font: 400 1.15rem/1.15 var(--serif); }
 .card i { display: block; font: italic .95rem/1.3 var(--serif); color: var(--ink-2); }
 .card small { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 12px; color: var(--ink-2); margin-top: 3px; }
 
-.button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px; border: 0; background: var(--ink); color: var(--paper); font: 500 14px/1.3 var(--sans); cursor: pointer; transition: background .15s, transform .15s var(--ease); }
-.button:hover { background: var(--press); }
-.button.ghost { background: var(--line); color: var(--ink); }
-.button.ghost:hover { background: var(--line-strong); }
+.button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px; border: 0; background: var(--accent-bg); color: var(--on-accent-bg); box-shadow: inset 0 0 0 1px var(--accent-edge); font: 500 14px/1.3 var(--sans); cursor: pointer; transition: background .15s, transform .15s var(--ease); }
+.button:hover { background: var(--accent-bg-hover); color: var(--on-accent-bg); }
+.button.ghost { background: var(--accent-wash); color: var(--accent); }
+.button.ghost:hover { background: color-mix(in oklch, var(--accent) 24%, transparent); color: var(--accent); }
 .hide { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.hide:focus-visible + .button, .button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.hide:focus-visible + .button, .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Lens */
-.warning { font: 400 1.15rem/1.5 var(--serif); max-width: 62ch; }
+.warning { font: 400 1.15rem/1.5 var(--serif); max-width: var(--measure); }
 .warning p { margin: 0; }
 .warning b { color: var(--poisonous); font-weight: 500; }
-.drop { max-width: 560px; background: var(--wash); transition: background .15s; }
-.drop.over { outline: 2px solid var(--ink); outline-offset: -2px; }
+.drop { max-width: var(--measure); background: var(--wash); transition: background .15s; }
+.drop.over { outline: 2px solid var(--accent); outline-offset: -2px; }
 .drop-body { display: grid; justify-items: center; gap: 14px; min-height: 280px; align-content: center; padding: 28px 20px; text-align: center; }
 .drop-icon { width: 44px; height: 44px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
 .drop b { font: 400 1.5rem/1.2 var(--serif); }
@@ -219,7 +238,7 @@ h2.sub:empty { display: none; }
 .sw.b { background: var(--series-b); }
 .genes { display: flex; gap: 2px; margin: 0 0 14px; max-width: 760px; }
 .genes span { flex-basis: 0; min-width: 64px; padding: 8px 10px; background: var(--wash); }
-.genes .gene { background: var(--ink); color: var(--paper); }
+.genes .gene { background: var(--accent); color: var(--on-accent); }
 .genes b { display: block; font: 600 13px var(--sans); }
 .genes small { font-size: 12.5px; }
 details summary { cursor: pointer; font: 500 13.5px var(--sans); margin: 4px 0 10px; }
@@ -227,7 +246,7 @@ details summary { cursor: pointer; font: 500 13.5px var(--sans); margin: 4px 0 1
 .aln-pos { font-size: 11px; line-height: 1.3; color: var(--ink-2); padding-top: 2px; }
 .aln-block pre { margin: 0; font: 13px/1.3 ui-monospace, "Cascadia Mono", Consolas, monospace; }
 .aln-block i { font-style: normal; }
-.aln-block .diff { background: var(--ink); color: var(--paper); }
+.aln-block .diff { background: var(--accent); color: var(--on-accent); }
 .aln-block .gap { background: var(--line-strong); }
 .aln-block .g { background: var(--wash); }
 .chart { position: relative; max-width: 760px; }
@@ -271,7 +290,7 @@ a:hover .leaf text { text-decoration: underline; }
 .choice { transition: background .2s, transform .15s var(--ease); display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px; border: 0; background: var(--wash); color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .choice:hover:not(:disabled) { background: var(--line); }
 .choice:disabled { cursor: default; color: var(--ink-2); }
-.choice.answer { color: inherit; outline: 2px solid var(--ink); outline-offset: -2px; }
+.choice.answer { color: inherit; outline: 2px solid var(--accent); outline-offset: -2px; }
 .choice img, .choice .nophoto { width: 96px; height: 96px; object-fit: cover; display: block; background: var(--paper); }
 .choice b { display: block; font: 400 1.25rem/1.15 var(--serif); }
 .choice i { display: block; font: italic 1rem/1.3 var(--serif); color: var(--ink-2); }
@@ -312,9 +331,9 @@ a:hover .leaf text { text-decoration: underline; }
 .theme .ico { grid-area: 1 / 1; width: 18px; height: 18px; transition: opacity .3s var(--ease), filter .3s var(--ease), transform .3s var(--ease); }
 /* The icon shows the theme a click switches to. The swap blurs one icon out and the other in. */
 .theme[data-dark="true"] .moon, .theme:not([data-dark="true"]) .sun { opacity: 0; filter: blur(4px); transform: scale(.97); }
-.skip { position: absolute; left: var(--gutter); top: 8px; z-index: 10; padding: 8px 12px; background: var(--ink); color: var(--paper); transform: translateY(-200%); }
+.skip { position: absolute; left: var(--gutter); top: 8px; z-index: 10; padding: 8px 12px; background: var(--accent-bg); color: var(--on-accent-bg); transform: translateY(-200%); }
 .skip:focus { transform: none; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Stippled shading on the glossary drawing. */
 .diagram .stipple { fill: none; stroke: var(--ink); stroke-width: 1.3; stroke-linecap: round; }
@@ -336,30 +355,32 @@ details[open]::details-content { height: auto; }
 /* ---- Personality ---- */
 
 /* Brand mark: a little toadstool that wobbles when you point at it. */
-.brand { display: inline-flex; align-items: center; gap: 8px; }
-.brand-mark { width: 26px; height: 24px; overflow: visible; transform-origin: 50% 90%; }
-.brand-mark .cap, .walker .cap, .lost-dopple .cap { fill: var(--poisonous); }
-.brand-mark .stem, .walker .stem, .lost-dopple .stem { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+.brand { display: inline-flex; align-items: baseline; gap: .28em; }
+/* The toadstool stands on the wordmark's baseline (an svg's baseline is its bottom edge) and scales with the text. */
+.brand-mark { width: 1.08em; height: 1.08em; overflow: visible; transform-origin: 50% 95%; }
+.lost-dopple .cap { fill: var(--poisonous); }
+.lost-dopple .stem { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
 .brand:hover .brand-mark { animation: wobble .6s var(--ease); }
 @keyframes wobble { 25% { rotate: -12deg; } 50% { rotate: 9deg; } 75% { rotate: -4deg; } }
 
 /* Old field-guide plates (Sowerby, 1797–1815) beside some sections, on torn paper that soaks into the page. */
-.plate { position: absolute; top: -26px; right: var(--gutter); width: clamp(110px, 13vw, 180px); height: auto; rotate: var(--tilt, 2deg);
+/* Plates are cut-outs pinned to the right of a section: they take up no space, so they never change its spacing. */
+.plate { position: absolute; top: 28px; right: var(--gutter); width: 170px; height: auto; rotate: var(--tilt, 2deg); pointer-events: none;
   mix-blend-mode: var(--plate-blend); opacity: var(--plate-opacity); mask: url(deckle.svg) 0 0 / 100% 100%; pointer-events: none; }
 
 /* A short dry-brush stroke under section headings, gold like kintsugi. */
-section h2::after { content: ""; display: block; width: 64px; height: 7px; margin-top: 10px; background: var(--inedible); mask: url(brush.svg) 0 0 / 100% 100%; }
+section h2::after { content: ""; display: block; width: 64px; height: 7px; margin-top: 10px; background: var(--gold); mask: url(brush.svg) 0 0 / 100% 100%; }
 main > section:first-child h2::after { display: none; }
 
 /* The walker: a toadstool that crosses the bottom of the screen as you scroll, facing the way you go. */
-.walker { position: fixed; left: 0; bottom: 4px; z-index: 20; width: 28px; height: 30px; pointer-events: none; translate: 12px 0; }
+.walker { position: fixed; left: 0; bottom: 2px; z-index: 20; width: 40px; height: 46px; pointer-events: none; translate: 12px 0; }
 :root[data-walker="off"] .walker { display: none; }
-.dopple { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; }
+.dopple { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: grab; pointer-events: auto; touch-action: none; }
 .dopple:hover .eyes { translate: 0 -.9px; }
 /* Dopple talks in a small handwritten bubble with a tail pointing at him. */
-.bubble { position: absolute; bottom: 38px; left: 2px; width: max-content; max-width: 150px; padding: 5px 9px 6px; background: var(--ink); color: var(--paper);
+.bubble { position: absolute; bottom: 50px; left: 2px; width: max-content; max-width: 150px; padding: 5px 9px 6px; background: var(--accent-bg); color: var(--on-accent-bg); box-shadow: inset 0 0 0 1px var(--accent-edge);
   font: 400 15px/1.15 "Gaegu", var(--sans); pointer-events: auto; transform-origin: 10px 100%; animation: enter .3s var(--ease) backwards; }
-.bubble::after { content: ""; position: absolute; top: 100%; left: 10px; border: 6px solid transparent; border-top-color: var(--ink); border-left-width: 0; }
+.bubble::after { content: ""; position: absolute; top: 100%; left: 10px; border: 6px solid transparent; border-top-color: var(--accent-bg); border-left-width: 0; }
 .walker.right .bubble::after { left: auto; right: 10px; border-left-width: 6px; border-right-width: 0; }
 .walker.right .bubble { left: auto; right: 2px; transform-origin: calc(100% - 10px) 100%; }
 .bubble p { margin: 0; }
@@ -375,10 +396,10 @@ main > section:first-child h2::after { display: none; }
 .lost-dopple .eyes { fill: var(--ink); transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
 .lost-dopple .mouth { fill: none; stroke: var(--ink); stroke-width: .9; stroke-linecap: round; }
 @keyframes sway { from { rotate: -7deg; } to { rotate: 7deg; } }
-.walker .eyes { fill: var(--ink); transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
-.walker .leg { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; transform-box: fill-box; transform-origin: 50% 0; }
-.walker.back svg { transform: scaleX(-1); }
-.walker.walking svg { animation: bob .28s ease-in-out infinite alternate; }
+.walker .eyes { fill: oklch(20% 0.03 40); transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+.walker .leg { stroke: oklch(92% 0.03 80); stroke-width: 2.4; stroke-linecap: round; transform-box: fill-box; transform-origin: 50% 0; }
+.walker.back .body { transform: scaleX(-1); }
+.walker.walking .body { animation: bob .28s ease-in-out infinite alternate; }
 .walker.walking .leg-a { animation: step .28s ease-in-out infinite alternate; }
 .walker.walking .leg-b { animation: step .28s ease-in-out infinite alternate-reverse; }
 @keyframes blink { 0%, 93%, 100% { scale: 1 1; } 96% { scale: 1 .1; } }
@@ -400,44 +421,47 @@ footer::before { content: ""; position: absolute; left: var(--gutter); bottom: 1
 a.look { transition: background .2s, translate .25s var(--ease); }
 a.look:hover { translate: 4px 0; }
 
-/* Changing page: the old page sinks back, the new one spreads in like ink on paper. */
-@view-transition { navigation: auto; }
-.top { view-transition-name: top; }
-.notice { view-transition-name: notice; }
-::view-transition-old(root) { animation: page-out .55s var(--ease) both; }
-::view-transition-new(root) { animation: ink-in .8s cubic-bezier(.6, 0, .25, 1) both; mask: url(blot.svg) no-repeat; }
-@keyframes page-out { to { transform: scale(.97) rotate(-.8deg); filter: blur(3px) grayscale(1); opacity: .6; } }
-@keyframes ink-in {
-  from { mask-size: 70px 70px; mask-position: calc(var(--ink-x, 50vw) - 35px) calc(var(--ink-y, 40vh) - 35px); }
-  to { mask-size: 330vmax 330vmax; mask-position: calc(var(--ink-x, 50vw) - 165vmax) calc(var(--ink-y, 40vh) - 165vmax); }
+/* Changing page: a web of mycelium grows over the page from the click, and dissolves from the middle on the next page (mycelium.js). */
+.mycelium { position: fixed; inset: 0; z-index: 101; width: 100vw; height: 100dvh; pointer-events: none; }
+.veil { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0; }
 }
 
 /* Scroll-driven motion, where the browser supports it. */
+/* Things settle in once, on a timer, the first time they scroll into view (common.js adds .in).
+   Timed rather than tied to the scroll position, so a mouse wheel's jumps can't make them stutter.
+   The hidden starting state only applies when common.js has added .reveal, so nothing stays hidden without it. */
+.reveal main > section:not(:first-child) > :is(h2, div, p, ul, ol, dl, figure, table) {
+  opacity: 0; transform: translateY(28px) scale(.97) rotate(var(--r, -.6deg));
+  transition: opacity .7s var(--ease), transform .9s var(--ease); }
+.reveal main > section:nth-child(even) > * { --r: .6deg; }
+.reveal main > section:not(:first-child) > .in { opacity: 1; transform: none; }
+/* Plates bleed in like ink. */
+.reveal .plate { clip-path: circle(4% at 50% 60%); rotate: calc(var(--tilt, 2deg) + 10deg);
+  transition: clip-path 1.2s var(--ease), rotate 1.2s var(--ease); }
+.reveal .plate.in { clip-path: circle(75% at 50% 50%); rotate: var(--tilt, 2deg); }
+/* The brush stroke paints itself left to right, just after its heading arrives. */
+.reveal section h2::after { clip-path: inset(0 100% 0 0); transition: clip-path .9s var(--ease) .3s; }
+.reveal section h2.in::after { clip-path: inset(0); }
+/* The footer mushrooms grow up out of the ground. */
+.reveal footer::before { clip-path: inset(100% 0 0 0); translate: 0 8px; transition: clip-path 1s var(--ease), translate 1s var(--ease); }
+.reveal footer.in::before { clip-path: inset(0); translate: 0 0; }
+
+/* Ongoing scroll effects only move and scale layers, which the graphics card does without repainting. */
 @supports (animation-timeline: view()) {
-  /* Sections settle in as they arrive, each tilted a little differently. */
-  main > section:not(:first-child) > :is(h2, div, p, ul, ol, dl, figure, table) { animation: rise linear backwards; animation-timeline: view(); animation-range: entry 0% entry 75%; }
-  main > section:nth-child(even) > * { --r: .8deg; }
-  @keyframes rise { from { opacity: 0; transform: translateY(48px) scale(.97) rotate(var(--r, -.8deg)); } }
-  /* Plates bleed in like ink, then drift slower than the page. */
-  .plate { animation: bleed linear both, drift linear both; animation-timeline: view(), view(); animation-range: entry 0% cover 40%, cover 0% cover 100%; }
-  @keyframes bleed { from { clip-path: circle(4% at 50% 60%); rotate: calc(var(--tilt, 2deg) + 10deg); } to { clip-path: circle(75% at 50% 50%); } }
+  /* Plates drift slower than the page. */
+  .plate { will-change: translate; animation: drift linear both; animation-timeline: view(); }
   @keyframes drift { from { translate: 0 36px; } to { translate: 0 -36px; } }
-  /* The brush stroke paints itself left to right. */
-  section h2::after { animation: paint linear both; animation-timeline: view(); animation-range: entry 60% cover 35%; }
-  @keyframes paint { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-  /* The opening painting drifts and swells as you scroll away from it. The layer itself stays put and only the
-     picture moves inside it, so its faded edges never slide out of place or leave a gap. */
-  main > section:first-child::before { animation: sink linear both; animation-timeline: scroll(root); animation-range: 0 700px; }
-  @keyframes sink { to { background-position: center 15%; scale: 1.1; } }
-  footer::before { animation: sprout linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
-  @keyframes sprout { from { clip-path: inset(100% 0 0 0); translate: 0 8px; } to { clip-path: inset(0); } }
+  /* The opening painting swells and sinks as you scroll away. It grows from its centre faster than it moves
+     down (6% of its height against 5%), so its top edge never comes into view. */
+  main > section:first-child::before { will-change: transform; animation: sink linear both; animation-timeline: scroll(root); animation-range: 0 700px; }
+  @keyframes sink { to { transform: translateY(5%) scale(1.12); } }
 }
+
 /* Washi paper over the whole page: pale fibres, soft clouding and flecks of bark. The tile repeats without a seam. */
 body::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url(washi.webp) 0 0 / 900px; opacity: var(--washi-opacity); pointer-events: none; }
 
-@media (max-width: 900px) { .plate { display: none; } }
+@media (max-width: 1099px) { .plate { display: none; } }  /* below this the plates would crowd the content */
 @media (prefers-reduced-motion: reduce) {
-  @view-transition { navigation: none; }
 }
 
 /* Analysis charts */
@@ -445,10 +469,43 @@ body::before { content: ""; position: absolute; inset: 0; z-index: -1; backgroun
 .chart .dot { fill-opacity: .55; }
 .chart .median { stroke: var(--ink); stroke-width: 2; }
 .rel-close { fill: var(--series-a); background: var(--series-a); }
-.rel-order { fill: var(--inedible); background: var(--inedible); }
+.rel-order { fill: var(--ink-2); background: var(--ink-2); }
 .rel-far { fill: var(--series-b); background: var(--series-b); }
 .chart a:hover circle { fill-opacity: 1; stroke: var(--ink); }
-.gap-yes { stroke: var(--ink); stroke-width: 2.5; }
-.gap-no { stroke: var(--poisonous); stroke-width: 2.5; }
-.gap-dot { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.gap-yes { stroke: var(--accent); stroke-width: 2.5; }
+.gap-no { stroke: var(--ink-2); stroke-width: 2; stroke-dasharray: 4 3; }  /* not red: red only ever means poisonous */
+.gap-dot { stroke: var(--ink); stroke-width: 1.5; }
+.gap-dot.own { fill: var(--paper); }
+.gap-dot.near { fill: var(--ink); }
+.chart .key svg { display: inline; width: 10px; height: 10px; flex: none; }
+.gapkey { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid var(--accent); }
+.gapkey.no { border-top: 2px dashed var(--ink-2); }
 .chart a:hover text { text-decoration: underline; }
+
+
+/* Dopple's look: a glossy fly-agaric cap, a soft cream stem, rosy cheeks. */
+.dp-cap-1 { stop-color: oklch(72% 0.19 35); } .dp-cap-2 { stop-color: oklch(56% 0.21 29); } .dp-cap-3 { stop-color: oklch(38% 0.15 25); }
+.dp-stem-1 { stop-color: oklch(98% 0.015 85); } .dp-stem-2 { stop-color: oklch(93% 0.03 80); } .dp-stem-3 { stop-color: oklch(80% 0.05 70); }
+.walker .cap { fill: url(#dp-cap); stroke: oklch(30% 0.1 28); stroke-width: .7; }
+.walker .stem { fill: url(#dp-stem); stroke: oklch(55% 0.05 60); stroke-width: .6; }
+.walker .gills { fill: oklch(85% 0.04 75); stroke: oklch(55% 0.05 60); stroke-width: .5; }
+.walker .gloss { fill: white; opacity: .32; }
+.walker .spots { fill: oklch(97% 0.015 85); }
+.walker .shine { fill: white; }
+.walker .cheeks { fill: oklch(72% 0.13 15); opacity: .55; }
+.walker .mouth { fill: none; stroke: oklch(20% 0.03 40); stroke-width: .8; stroke-linecap: round; }
+.walker .mouth-o { fill: oklch(30% 0.08 20); opacity: 0; }
+.walker .arm { fill: none; stroke: oklch(92% 0.03 80); stroke-width: 2; stroke-linecap: round; transform-box: fill-box; }
+.walker .arm-a { transform-origin: 100% 0; } .walker .arm-b { transform-origin: 0 0; }
+.walker .shadow { fill: black; opacity: .35; transition: opacity .2s, rx .2s; }
+.walker .body { transform-box: view-box; transform-origin: 20px 44px; }  /* squash and flip around his feet */
+
+/* Picked up: he dangles from the top of his cap, legs kicking, arms up, mouth open. */
+.walker.held { z-index: 40; }
+.walker.held .dopple { cursor: grabbing; }
+.walker.held .body { transform-origin: 20px 4px; rotate: var(--swing, 0deg); animation: none; }
+.walker.held .leg-a { animation: step .14s ease-in-out infinite alternate; }
+.walker.held .leg-b { animation: step .14s ease-in-out infinite alternate-reverse; }
+.walker.held .arm-a { rotate: 70deg; } .walker.held .arm-b { rotate: -70deg; }
+.walker.held .mouth { opacity: 0; } .walker.held .mouth-o { opacity: 1; }
+.walker.held .shadow, .walker.falling .shadow { opacity: 0; }

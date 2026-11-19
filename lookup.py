@@ -2,6 +2,7 @@
 import csv
 import hashlib
 import json
+import os
 import re
 import threading
 import time
@@ -40,7 +41,7 @@ DANGER = {"deadly": "deadly", "poisonous": "poisonous", "psychoactive": "caution
 
 def get(url):
     req = urllib.request.Request(url, headers={"User-Agent": "mushroom-education-script"})
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=15) as r:  # a slow database must not hold a worker for long
         return json.load(r)
 
 
@@ -51,7 +52,13 @@ def cache_path(kind, key):
 def save(kind, key, value):
     path = cache_path(kind, key)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value), encoding="utf-8")
+    # Write to a temporary file, then swap it in: two visitors saving the same answer never leave half a file.
+    tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
+    tmp.write_text(json.dumps(value), encoding="utf-8")
+    try:
+        os.replace(tmp, path)
+    except PermissionError:  # Windows: another visitor is reading or saving the same answer; theirs is just as good
+        tmp.unlink(missing_ok=True)
 
 
 def cached(kind, key, make):
@@ -170,9 +177,10 @@ def card(taxon, **extra):
 
 
 def search(q):
-    q = urllib.parse.quote(q)
-    found = get(f"{INAT}/taxa/autocomplete?q={q}&taxon_id={MUSHROOMS}&rank=species&per_page=12")
-    return with_labels([card(t) for t in found["results"]])
+    q = " ".join(q.lower().split())
+    url = f"{INAT}/taxa/autocomplete?q={urllib.parse.quote(q)}&taxon_id={MUSHROOMS}&rank=species&per_page=12"
+    # Saved per query, so popular searches never reach iNaturalist twice; labels are added fresh each time.
+    return with_labels(cached("find", q, lambda: [card(t) for t in get(url)["results"]]))
 
 
 def places(q):
