@@ -63,9 +63,9 @@ p { margin: 0 0 12px; }
 .mark.none { fill: none; stroke: var(--ink-2); stroke-width: 1.5; }
 
 /* Header, notice, footer */
-.top { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px 24px; padding: 16px var(--gutter) 12px; }
+.top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; padding: 16px var(--gutter) 12px; }
 .brand { font: 500 1.6rem/1 var(--serif); text-decoration: none; }
-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; margin-left: auto; }
 nav a { display: inline-flex; align-items: center; gap: 7px; font: 500 14px var(--sans); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; transition: border-color .2s; }
 nav a:hover, nav a[aria-current] { border-color: var(--accent); }
 nav a[aria-current] { color: var(--accent); }
@@ -315,6 +315,15 @@ a:hover .leaf text { text-decoration: underline; }
 .terms dt { font: 600 14.5px var(--sans); margin-bottom: 4px; }
 .terms dd { margin: 0; font-size: 14.5px; color: var(--ink-2); }
 
+/* Phones: logo and theme switch on one row, then every link in a single row you can swipe sideways. */
+@media (max-width: 760px) {
+  .top { position: relative; display: block; padding-top: 14px; padding-bottom: 0; }
+  .theme { position: absolute; top: 12px; right: var(--gutter); }
+  nav { flex-wrap: nowrap; gap: 22px; overflow-x: auto; margin: 10px calc(-1 * var(--gutter)) 0; padding: 4px var(--gutter) 8px;
+    scrollbar-width: none; overscroll-behavior-x: contain; mask-image: linear-gradient(to right, black calc(100% - 40px), transparent); }
+  nav::-webkit-scrollbar { display: none; }
+  nav a { flex: none; }
+}
 @media (max-width: 900px) {
   .duo, .choose, .choices, .terms { grid-template-columns: minmax(0, 1fr); }
   .cols, .gloss, .lineages, .maps { grid-template-columns: minmax(0, 1fr); gap: 24px; }

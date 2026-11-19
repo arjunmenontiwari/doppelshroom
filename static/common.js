@@ -10,6 +10,12 @@ const common = (s) => (s.common_name ? s.common_name.replace(/(^|\s)\w/g, (ch) =
 // Text from outside databases is escaped before it goes into the page.
 const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
 
+// On phones the links scroll sideways; start with the current page's link in view.
+{
+  const nav = document.querySelector("nav"), here = nav && nav.querySelector("[aria-current]");
+  if (here && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = here.offsetLeft - (nav.clientWidth - here.offsetWidth) / 2;
+}
+
 // Theme: dark violet by default; the visitor can switch to light lilac, and the choice is remembered in this browser.
 const root = document.documentElement;
 const isDark = () => root.dataset.theme !== "light"; // dark violet unless the visitor chose the light version
@@ -68,11 +74,14 @@ function spores(x, y, n = 14) {
     ], { duration: 700 + Math.random() * 600, easing: "cubic-bezier(.15, .7, .4, 1)" }).finished.then(() => s.remove());
   }
 }
+// Every click puffs spores: a full puff from buttons, a small one anywhere else. Dopple makes his own.
 addEventListener("click", (e) => {
+  if (e.target.closest("#walker") || !getSelection().isCollapsed) return;  // not while selecting text
   const b = e.target.closest(".button, .theme, .picker button");
-  if (!b) return;
-  const r = b.getBoundingClientRect();
-  spores(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2); // keyboard clicks have no pointer position
+  if (b) {
+    const r = b.getBoundingClientRect();
+    spores(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2); // keyboard clicks have no pointer position
+  } else if (e.clientX || e.clientY) spores(e.clientX, e.clientY, 7);
 });
 
 // Reveal sections, plates, brush strokes and the footer once, as they first come into view (see .reveal in style.css).
