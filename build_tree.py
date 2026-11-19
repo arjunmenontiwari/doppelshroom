@@ -2,6 +2,7 @@
 import csv
 import itertools
 import json
+import math
 
 import matplotlib
 matplotlib.use("Agg")
@@ -32,6 +33,33 @@ def align(a, b):
 
 def distance(s1, s2):
     return sum(x != y for x, y in zip(s1, s2)) / len(s1)  # mismatches + gaps
+
+
+SATURATED = 2.0  # K2P stand-in when two barcodes differ too much for the formula to give a number
+
+
+def k2p(s1, s2):
+    """Kimura 2-parameter distance: estimated substitutions per site, the standard measure in DNA barcoding.
+    It counts transitions (A<->G, C<->T, the common kind of mutation) apart from transversions, and corrects
+    for sites that changed more than once. Gaps and ambiguous letters are skipped. Returns SATURATED when the
+    sequences are too different to estimate, and None when they share no comparable site."""
+    sites = transitions = transversions = 0
+    for x, y in zip(str(s1).upper(), str(s2).upper()):
+        if x not in "ACGT" or y not in "ACGT":
+            continue
+        sites += 1
+        if x != y:
+            if (x in "AG") == (y in "AG"):
+                transitions += 1
+            else:
+                transversions += 1
+    if not sites:
+        return None
+    p, q = transitions / sites, transversions / sites
+    a, b = 1 - 2 * p - q, 1 - 2 * q
+    if a <= 0 or b <= 0:
+        return SATURATED
+    return min(max(-0.5 * math.log(a) - 0.25 * math.log(b), 0.0), SATURATED)
 
 
 def sample(s1, s2, width=60):

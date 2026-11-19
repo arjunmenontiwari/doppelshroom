@@ -26,6 +26,15 @@ def fetch_its(species):
         return SeqIO.read(h, "fasta")
 
 
+def fetch_its_many(species, n=6):
+    """Up to n ITS records of one species from different submissions, to see how much the barcode varies within it."""
+    ids = search(f'"{species}"[Organism] AND (ITS1[All Fields] OR "internal transcribed spacer"[All Fields]) AND 450:1000[SLEN]', n)
+    if not ids:
+        return []
+    with Entrez.efetch(db="nucleotide", id=",".join(ids), rettype="fasta", retmode="text") as h:
+        return list(SeqIO.parse(h, "fasta"))
+
+
 def main():
     with open("species.csv", newline="") as f:
         species = [row["species"] for row in csv.DictReader(f)]

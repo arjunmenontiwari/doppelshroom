@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Analysis{% endblock %}
+{% block content %}
+<section class="head">
+  <div>
+    <h1>Are lookalikes relatives? The numbers</h1>
+    <p class="lede" id="verdict">Running the numbers…</p>
+  </div>
+</section>
+
+<section>
+  <h2>Lookalikes against random pairs</h2>
+  <div>
+    <div class="chart wide" id="strip"></div>
+    <p class="summary" id="strip-result"></p>
+    <p class="caption">Each dot is one pair: a common mushroom and a species observers confused it with (top row), or a random species from the same data (bottom row). Further right means more DNA difference, as Kimura 2-parameter distance: estimated mutations per position. The line marks each row's middle value.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Does more confusion mean closer DNA?</h2>
+  <div>
+    <div class="chart wide" id="scatter"></div>
+    <p class="summary" id="scatter-result"></p>
+    <p class="caption">Each dot is a lookalike pair: how often iNaturalist observers confused them (up, on a log scale) against their DNA distance (right). Colour shows the closest group they share. Click a dot to compare the two species.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Can the barcode tell them apart?</h2>
+  <div>
+    <div class="chart wide" id="gaps"></div>
+    <p class="summary" id="gap-result"></p>
+    <p class="caption">For each species, the dot on the left is how much its own GenBank barcodes differ from each other, and the dot on the right is the distance to its closest lookalike. A dark line between them is a barcode gap: the species' own variation is smaller than the step to any lookalike, so its barcode identifies it. A red line means they overlap.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Method</h2>
+  <div class="cols">
+    <div><h3>The data</h3><p>The most-observed mushroom species on iNaturalist, plus well-known mix-ups from field guides. For each, the species observers most often confused with it, and an equal number of random species from the same data as a baseline. One GenBank ITS barcode per species, plus several per focal species for the barcode gap.</p></div>
+    <div><h3>The distance</h3><p>Kimura 2-parameter, the standard in DNA barcoding. It counts transitions (A to G, C to T) apart from the rarer transversions and corrects for positions that changed more than once. Gaps are skipped. Pairs too different to estimate are capped.</p></div>
+    <div><h3>The tests</h3><p>Permutation tests. Pairs that share a species are not independent, so labels and counts are only ever shuffled within one focal species, the idea behind a Mantel test. The p-value is the share of shuffles that look at least as extreme as the real data.</p></div>
+    <div><h3>The limits</h3><p>One barcode can be mislabelled. ITS saturates between distant groups. Lookalikes come from people's mistakes on iNaturalist, which favour common, photogenic species. Correlation says nothing about why two mushrooms look alike.</p></div>
+  </div>
+  <p class="caption" id="analysis-meta"></p>
+</section>
+{% endblock %}
+{% block script %}<script src="{{ asset("explore.js") }}"></script>{% endblock %}

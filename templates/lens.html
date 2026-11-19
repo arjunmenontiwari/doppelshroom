@@ -58,5 +58,23 @@
     </div>
   </section>
 </div>
+
+<section id="dna-lens">
+  <h2>Or paste a DNA sequence</h2>
+  <div>
+    <form id="seq-form">
+      <textarea class="field seq" id="seq" rows="6" spellcheck="false" aria-label="DNA sequence" placeholder="Paste an ITS sequence, with or without a FASTA header line (>name)"></textarea>
+      <p class="fields"><button class="button" type="submit">Find the species <span aria-hidden="true">→</span></button>
+        <button class="button ghost" id="seq-example" type="button">Try an example</button></p>
+    </form>
+    <div id="seq-status"></div>
+    <div id="seq-results" hidden>
+      <div class="cards" id="seq-matches"></div>
+      <h2 class="sub" id="seq-danger-title">Its dangerous lookalikes</h2>
+      <div class="cards" id="seq-danger"></div>
+    </div>
+    <p class="caption">How it works: your sequence is cut into every 8-letter piece (a k-mer). The barcodes this site has downloaded from GenBank are ranked by how many pieces they share, on both DNA strands, and the closest few are aligned letter by letter. Identity is the share of aligned positions that match; species usually differ by more than 3%. Only barcodes this site already holds can be found, so the right species may be missing. Like the lens, it never says a mushroom is safe to eat.</p>
+  </div>
+</section>
 {% endblock %}
 {% block script %}<script src="{{ asset("explore.js") }}"></script>{% endblock %}

@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field
 
 import gemini
@@ -23,8 +24,7 @@ ROOT = Path(__file__).parent
 RANKS = ("family", "order", "class", "phylum")  # most specific first
 PAGES = {"/": "index.html", "/lens": "lens.html", "/compare": "compare.html", "/quiz": "quiz.html",
          "/glossary": "glossary.html",
-         "/method": "method.html", "/sources": "sources.html", "/privacy": "privacy.html",
-         "/species/{inat_id}": "species.html"}
+         "/method": "method.html", "/sources": "sources.html", "/privacy": "privacy.html", "/about": "about.html", "/analysis": "analysis.html"}
 
 
 def read_json(name):
@@ -89,6 +89,15 @@ def asset(name):
 
 
 templates.env.globals["asset"] = asset
+
+
+@app.exception_handler(StarletteHTTPException)
+def not_found(request, error):
+    """Unknown pages get a friendly page; the API and static files keep plain JSON errors."""
+    path = request.url.path
+    if error.status_code == 404 and not path.startswith(("/api/", "/static/")):
+        return templates.TemplateResponse(request, "404.html", status_code=404)
+    return JSONResponse({"detail": error.detail}, status_code=error.status_code, headers=getattr(error, "headers", None))
 
 
 @app.exception_handler(urllib.error.URLError)
@@ -191,7 +200,7 @@ def facts(inat_id: int):
 
 @app.get("/api/prep/{inat_id}")
 def prep(inat_id: int):
-    return found(lookup.prep(inat_id))  # 404 unless the hand-checked list calls it edible
+    return found(lookup.prep(inat_id))  # 404 unless the species is labelled edible
 
 
 class Photo(BaseModel):
@@ -208,11 +217,54 @@ def lens(photo: Photo):
     return lookup.lens(photo.image, photo.mime)
 
 
+class Sequence(BaseModel):
+    sequence: str = Field(max_length=20_000)
+
+
+@app.post("/api/identify")
+def identify(body: Sequence):
+    seq = lookup.clean_sequence(body.sequence)
+    if not seq:
+        raise HTTPException(status_code=422, detail="Paste a DNA sequence of 100 to 5000 letters, using only A, C, G, T and N.")
+    return lookup.identify(seq)
+
+
+@app.get("/api/example-sequence")
+def example_sequence():
+    return lookup.example_sequence()
+
+
+@app.get("/api/analysis")
+def analysis():
+    path = ROOT / "analysis.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="The analysis has not been run yet (python analyze.py).")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 @app.get("/api/{name}")
 def api(name: str):
     if name not in DATA:
         raise HTTPException(status_code=404, detail="unknown dataset")
     return DATA[name]
+
+
+@app.get("/species/{inat_id}", include_in_schema=False)
+def species_page(request: Request, inat_id: str):
+    if not inat_id.isdigit():
+        raise HTTPException(status_code=404)
+    try:
+        t = lookup.taxon(int(inat_id))
+    except urllib.error.URLError:
+        t = False  # iNaturalist did not answer: show the page anyway, with a plain link preview
+    if t is None:
+        raise HTTPException(status_code=404)  # not a mushroom species
+    og = {}
+    if t:
+        name = " ".join(w[:1].upper() + w[1:] for w in (t["common_name"] or t["name"]).split(" "))
+        og = {"title": f"{name} · Doppelshroom",
+              "description": f"{name} ({t['name']}) and the mushrooms it is mistaken for, compared by DNA. Educational, not an identification tool."}
+    return templates.TemplateResponse(request, "species.html", {"og": og})
 
 
 def add_page(path, template):

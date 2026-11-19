@@ -15,9 +15,9 @@ from Bio.Align import PairwiseAligner
 from Bio.Seq import Seq
 
 import gemini
-from build_tree import align, distance
+from build_tree import align, distance, k2p
 from fetch_occurrences import occurrences
-from fetch_sequences import fetch_its
+from fetch_sequences import fetch_its, fetch_its_many
 
 ROOT = Path(__file__).parent
 CACHE = ROOT / "cache"
@@ -250,6 +250,16 @@ def barcode(name):
     return cached("its", name, fetch)
 
 
+def barcodes(name):
+    """Several barcodes of one species, for measuring variation within it."""
+    def fetch():
+        with ncbi:
+            recs = fetch_its_many(name)
+            time.sleep(.4)  # NCBI allows 3 requests a second
+        return [{"accession": r.id, "seq": str(r.seq)} for r in recs]
+    return cached("its-many", name, fetch)
+
+
 def build_dna(inat_id):
     """DNA difference between a species and each of its lookalikes."""
     p = profile(inat_id)
@@ -332,6 +342,71 @@ def lens(data, mime):
     return {"matches": [never_edible(c) for c in matches], "dangerous": dangerous}
 
 
+
+# ---- Find a species from a pasted DNA sequence ----
+K = 8  # k-mer length: long enough to be specific among a few hundred barcodes, short enough to survive mutations
+DNA = re.compile(r"^[ACGTN]+$")
+
+
+def clean_sequence(text):
+    """Plain letters from pasted text: FASTA header lines, spaces, numbers and line breaks removed, RNA's U read as T.
+    Returns None if anything else is left, or if the sequence is too short or too long to compare."""
+    lines = [l for l in text.splitlines() if not l.startswith(">")]
+    seq = re.sub(r"[\s\d]+", "", "".join(lines)).upper().replace("U", "T")
+    return seq if DNA.match(seq or "-") and 100 <= len(seq) <= 5000 else None
+
+
+def kmers(seq):
+    return {seq[i:i + K] for i in range(len(seq) - K + 1) if "N" not in seq[i:i + K]}
+
+
+_refs = {"files": -1, "list": []}
+
+
+def references():
+    """Every barcode this site has downloaded so far, with its k-mers. Rebuilt when new barcodes arrive."""
+    files = list((CACHE / "its").glob("*.json"))
+    if len(files) != _refs["files"]:
+        out = []
+        for f in files:
+            b = json.loads(f.read_text(encoding="utf-8"))
+            if b:
+                out.append({"name": f.stem.replace("_", " "), "accession": b["accession"], "seq": b["seq"], "kmers": kmers(b["seq"].upper())})
+        _refs.update(files=len(files), list=out)
+    return _refs["list"]
+
+
+def identify(seq):
+    """Closest species to a sequence: rank all references by shared k-mers (both strands), then align the best few."""
+    q = kmers(seq)
+    q_rc = kmers(str(Seq(seq).reverse_complement()))
+    score = lambda r: max(len(q & r["kmers"]), len(q_rc & r["kmers"])) / max(len(q), 1)
+    top = sorted(references(), key=score, reverse=True)[:6]
+    hits = []
+    for r in top:
+        rows = align(Seq(seq), Seq(r["seq"]))
+        if len(rows[0]) < 80:
+            continue
+        hits.append({"name": r["name"], "accession": r["accession"], "shared_kmers": round(score(r), 3),
+                     "identity": 1 - distance(*rows), "k2p": k2p(*rows), "length": len(rows[0])})
+    hits.sort(key=lambda h: -h["identity"])
+    cards = {c["name"]: c for c in resolve([h["name"] for h in hits])}
+    matches = [{**h, **never_edible(dict(cards[h["name"]]))} for h in hits if h["name"] in cards]
+    # Like the lens: never call a match edible, and point at its dangerous lookalikes instead.
+    danger = []
+    if matches:
+        p = profile(matches[0]["id"])
+        danger = [l for l in (p or {}).get("lookalikes", []) if l["status"] in DANGEROUS][:6]
+    return {"matches": matches, "dangerous": danger, "references": len(references())}
+
+
+def example_sequence():
+    """A reference barcode with about 2% of its letters changed, so the search has to work for its answer."""
+    import random
+    r = random.choice(references())
+    seq = [ch if random.random() > .02 else random.choice("ACGT") for ch in r["seq"].upper()]
+    return {"sequence": "".join(seq)}
+
 # The 5.8S ribosomal RNA gene of a mushroom (Amanita). It barely changes between species, so a local
 # alignment against it finds the gene in almost any barcode, and with it the two spacers on either side.
 GENE_5_8S = Seq("CAACTTTCAACAACGGATCTCTTGGCTCTCGCATCGATGAAGAACGCAGCGAAATGCGATAAGTAATGTGAATTGCAGAATTCAGTGAAT"
@@ -381,9 +456,10 @@ def facts(inat_id):
 
 
 def prep(inat_id):
-    """Cooking steps, only for species the hand-checked list calls edible."""
+    """Cooking steps, only for species labelled edible: by the hand-checked list, or by a Wikipedia
+    infobox that lists nothing more dangerous than edible (labels() keeps the most dangerous value)."""
     t = taxon(inat_id)
-    if not t or CHECKED.get(t["name"], {}).get("status") != "edible":
+    if not t or (labels([t["name"]]).get(t["name"]) or {}).get("status") != "edible":
         return None
     return cached("prep", t["name"], lambda: gemini.prep(t["name"]))
 
@@ -420,7 +496,7 @@ def build_family(inat_id):
         return None
     seqs = [Seq(barcode(m["name"])["seq"]) for m in members]
     # DistanceMatrix wants a lower triangle: row i holds the distances to rows 0..i.
-    matrix = [[distance(*align(seqs[i], seqs[j])) for j in range(i)] + [0.0] for i in range(len(seqs))]
+    matrix = [[k2p(*align(seqs[i], seqs[j])) or 0.0 for j in range(i)] + [0.0] for i in range(len(seqs))]  # Kimura 2-parameter
     tree = DistanceTreeConstructor().nj(DistanceMatrix([str(m["id"]) for m in members], matrix))
     tree.root_at_midpoint()  # no outgroup here, so root halfway between the two most different species
     tree.ladderize()

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<section class="head">
+  <div>
+    <h1>Hi, I'm Arjun</h1>
+    <p class="lede">I'm a computer science student, and Doppelshroom is my bioinformatics project. It started with one question: are the poisonous mushrooms people mistake for edible ones actually related to them?</p>
+  </div>
+</section>
+
+<section>
+  <h2>Why mushrooms</h2>
+  <img class="plate" src="/static/plates/t416.jpg" alt="" style="--tilt: -3deg">
+  <div class="prose">
+    <p>Mushroom lookalikes are a good puzzle for DNA. Two species can look almost the same and be distant relatives, or look different and be close cousins. Their barcodes show which.</p>
+    <p>They also matter. People get badly poisoned every year by mistaking one mushroom for another, which is why this site will never tell you a wild mushroom is safe to eat.</p>
+  </div>
+</section>
+
+<section>
+  <h2>How it's built</h2>
+  <div class="cols">
+    <div><h3>DNA</h3><p>Barcodes from GenBank, lined up with Biopython, turned into distances and family trees.</p></div>
+    <div><h3>Species</h3><p>Names, photos and lookalikes from iNaturalist, labels from Wikipedia and a hand-checked list, maps from GBIF.</p></div>
+    <div><h3>AI</h3><p>Google Gemini turns descriptions and photos into species names, which are always checked against real records.</p></div>
+    <div><h3>Site</h3><p>Python and FastAPI on the server, plain HTML, CSS and JavaScript in the browser. No frameworks, no tracking.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>What's next</h2>
+  <img class="plate" src="/static/plates/t187.jpg" alt="" style="--tilt: 3deg">
+  <div class="prose">
+    <p>A lens with my own image model, trained on open mushroom photos, so the lens no longer depends on someone else's AI.</p>
+    <p>Found a mistake or have an idea? <a href="https://github.com/arjunmenontiwari/doppelshroom/issues">Tell me on GitHub</a>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>And Dopple</h2>
+  <div class="prose">
+    <p>The little toadstool at the bottom of the screen is Dopple. He walks while you scroll and has opinions about the page you're on. Click him to say hello, or hide him from the link in the footer.</p>
+  </div>
+</section>
+{% endblock %}
+{% block script %}{% endblock %}

@@ -86,6 +86,9 @@ document.querySelectorAll("main h1:not([id])").forEach((h) => {
   h.innerHTML = h.textContent.trim().split(/\s+/).map((w, i) => `<span class="word" style="--i:${i}">${esc(w)}</span>`).join(" ");
 });
 
+// Dopple says something in his speech bubble. Pages call this to make him react; it does nothing while he is hidden.
+let say = () => {};
+
 // Dopple, the walking mushroom. He crosses the screen as you scroll, but never faster than half a pixel
 // per pixel scrolled, so on a short page he strolls part of the way instead of sprinting across.
 {
@@ -119,12 +122,28 @@ document.querySelectorAll("main h1:not([id])").forEach((h) => {
     "spore-ry, were you reading?",
     "lookalikes?? don't get me started",
   ];
+  say = (text) => {
+    if (root.dataset.walker === "off") return;
+    $("quip").textContent = text;
+    $("bubble").hidden = false;
+    $("bubble").style.animation = "none"; $("bubble").offsetHeight; $("bubble").style.animation = ""; // replay the pop-in
+    clearTimeout(hush);
+    hush = setTimeout(() => { $("bubble").hidden = true; }, 3800);
+  };
+  // A hello for each page, once per visit, a moment after it opens.
+  const GREET = {
+    "/": "hi! scroll and i'll walk with you", "/lens": "ooh, show me a mushroom", "/compare": "pick two. i love a rivalry",
+    "/quiz": "quiz time! no pressure", "/glossary": "big words. i know some", "/method": "dna stuff. i'm made of that",
+    "/sources": "all the receipts are here", "/privacy": "no cookies here. only spores", "/about": "that's my human!", "/analysis": "numbers! i love numbers",
+  };
+  const hello = document.querySelector("[data-greet]")?.dataset.greet || GREET[location.pathname];
+  let greeted = false;
+  try { greeted = sessionStorage.getItem(`greeted:${location.pathname}`); sessionStorage.setItem(`greeted:${location.pathname}`, "1"); } catch (e) { /* greet anyway */ }
+  if (hello && !greeted) setTimeout(() => say(hello), 1200);
+
   $("dopple").addEventListener("click", () => {
     clicks += 1;
-    $("quip").textContent = clicks > 8 ? "hehe stop, i'm ticklish" : QUIPS[(clicks - 1) % QUIPS.length];
-    $("bubble").hidden = false;
-    clearTimeout(hush);
-    hush = setTimeout(() => { $("bubble").hidden = true; }, 3500);
+    say(clicks > 8 ? "hehe stop, i'm ticklish" : QUIPS[(clicks - 1) % QUIPS.length]);
     const r = $("dopple").getBoundingClientRect();
     spores(r.left + r.width / 2, r.top + 6, 12);
     if (!calm()) $("dopple").animate([{ translate: "0 0", rotate: "0deg" }, { translate: "0 -22px", rotate: "-10deg" }, { translate: "0 0", rotate: "0deg" }],

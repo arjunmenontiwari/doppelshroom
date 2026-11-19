@@ -83,6 +83,10 @@
       <div id="alignment"><dt>Alignment</dt><dd>Lining two sequences up so that letters that came from the same ancestral letter sit above each other. A computer finds the line-up with the most matches and the fewest gaps.</dd></div>
       <div id="gap"><dt>Gap</dt><dd>A dash in an alignment, where one species has letters the other has lost or never had.</dd></div>
       <div id="distance"><dt>DNA difference</dt><dd>The share of aligned positions where two barcodes differ, counting gaps. 0% means identical barcodes.</dd></div>
+      <div id="k2p"><dt>Kimura 2-parameter distance</dt><dd>The standard DNA distance in barcoding. It counts the two kinds of letter change separately (transitions, A to G and C to T, happen far more often than transversions) and corrects for positions that changed more than once, so it estimates how many changes really happened.</dd></div>
+      <div id="barcode-gap"><dt>Barcode gap</dt><dd>When a species' own barcodes differ from each other less than they differ from any other species. Then the barcode alone can tell it apart. See the <a href="/analysis">analysis</a>.</dd></div>
+      <div id="kmer"><dt>k-mer</dt><dd>Every stretch of k letters in a sequence. Two sequences that share many 8-letter k-mers are probably similar, which makes k-mers a fast first filter before a full alignment.</dd></div>
+      <div id="permutation"><dt>Permutation test</dt><dd>A way to check if a pattern could be chance: shuffle the labels thousands of times and see how often the shuffled data looks as extreme as the real data.</dd></div>
       <div id="tree"><dt>Neighbour-joining tree</dt><dd>A tree built from DNA differences. It repeatedly joins the two species that are closest, after correcting for how fast each one changes. Read it from the right: the sooner two branches meet, the more similar the DNA.</dd></div>
       <div id="ranks"><dt>Genus, family, order</dt><dd>Levels of classification, from close to distant. Species in the same genus are close relatives. Species in different orders split long ago.</dd></div>
     </dl>

@@ -36,7 +36,7 @@
 
 [hidden] { display: none !important; }
 * { box-sizing: border-box; border-radius: 0; }
-body { position: relative; margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+body { position: relative; min-height: 100dvh; margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
 a { color: inherit; text-underline-offset: 3px; }
 p { margin: 0 0 12px; }
 .mark.edible { fill: var(--edible); }
@@ -75,6 +75,8 @@ sup a { font: 600 11px var(--sans); text-decoration: none; padding: 0 2px; }
 .list { margin: 0; padding-left: 22px; max-width: 62ch; font: 400 1.15rem/1.5 var(--serif); }
 .list li { margin-bottom: 6px; }
 .list .caption { list-style: none; margin-left: -22px; }
+.recipes { margin: 16px 0 0; font: 500 14px var(--sans); }
+.field.seq { max-width: 760px; font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; resize: vertical; word-break: break-all; }
 
 .gloss { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin: 32px 0 0; }
 .gloss dt { font-weight: 600; font-size: 14px; }
@@ -161,7 +163,7 @@ a.look { transition: background .2s; }
 .card i { display: block; font: italic .95rem/1.3 var(--serif); color: var(--ink-2); }
 .card small { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 12px; color: var(--ink-2); margin-top: 3px; }
 
-.button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px; border: 0; background: var(--ink); color: var(--paper); font: 500 14px/1.3 var(--sans); cursor: pointer; transition: background .15s, transform .15s var(--ease); }
+.button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px; border: 0; background: var(--ink); color: var(--paper); font: 500 14px/1.3 var(--sans); cursor: pointer; transition: background .15s, transform .15s var(--ease); }
 .button:hover { background: var(--press); }
 .button.ghost { background: var(--line); color: var(--ink); }
 .button.ghost:hover { background: var(--line-strong); }
@@ -336,8 +338,8 @@ details[open]::details-content { height: auto; }
 /* Brand mark: a little toadstool that wobbles when you point at it. */
 .brand { display: inline-flex; align-items: center; gap: 8px; }
 .brand-mark { width: 26px; height: 24px; overflow: visible; transform-origin: 50% 90%; }
-.brand-mark .cap, .walker .cap { fill: var(--poisonous); }
-.brand-mark .stem, .walker .stem { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+.brand-mark .cap, .walker .cap, .lost-dopple .cap { fill: var(--poisonous); }
+.brand-mark .stem, .walker .stem, .lost-dopple .stem { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
 .brand:hover .brand-mark { animation: wobble .6s var(--ease); }
 @keyframes wobble { 25% { rotate: -12deg; } 50% { rotate: 9deg; } 75% { rotate: -4deg; } }
 
@@ -364,7 +366,15 @@ main > section:first-child h2::after { display: none; }
 .bubble .link { font: 700 13px/1 "Gaegu", var(--sans); opacity: .75; }
 .link { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .walker svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.walker .spot { fill: var(--paper); }
+.walker .spot, .lost-dopple .spot { fill: var(--paper); }
+
+/* 404: a big, lost Dopple swaying beside the message. */
+.lost { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; }
+.lost .fields { gap: 10px; margin-top: 28px; }
+.lost-dopple { width: clamp(120px, 18vw, 220px); height: auto; overflow: visible; margin-right: 8vw; transform-origin: 50% 90%; animation: sway 2.6s ease-in-out infinite alternate; }
+.lost-dopple .eyes { fill: var(--ink); transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+.lost-dopple .mouth { fill: none; stroke: var(--ink); stroke-width: .9; stroke-linecap: round; }
+@keyframes sway { from { rotate: -7deg; } to { rotate: 7deg; } }
 .walker .eyes { fill: var(--ink); transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
 .walker .leg { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; transform-box: fill-box; transform-origin: 50% 0; }
 .walker.back svg { transform: scaleX(-1); }
@@ -415,9 +425,10 @@ a.look:hover { translate: 4px 0; }
   /* The brush stroke paints itself left to right. */
   section h2::after { animation: paint linear both; animation-timeline: view(); animation-range: entry 60% cover 35%; }
   @keyframes paint { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-  /* The opening painting sinks and swells as you scroll away from it. */
+  /* The opening painting drifts and swells as you scroll away from it. The layer itself stays put and only the
+     picture moves inside it, so its faded edges never slide out of place or leave a gap. */
   main > section:first-child::before { animation: sink linear both; animation-timeline: scroll(root); animation-range: 0 700px; }
-  @keyframes sink { to { translate: 0 160px; scale: 1.08; } }
+  @keyframes sink { to { background-position: center 15%; scale: 1.1; } }
   footer::before { animation: sprout linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
   @keyframes sprout { from { clip-path: inset(100% 0 0 0); translate: 0 8px; } to { clip-path: inset(0); } }
 }
@@ -428,3 +439,16 @@ body::before { content: ""; position: absolute; inset: 0; z-index: -1; backgroun
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
+
+/* Analysis charts */
+.chart.wide { max-width: 860px; }
+.chart .dot { fill-opacity: .55; }
+.chart .median { stroke: var(--ink); stroke-width: 2; }
+.rel-close { fill: var(--series-a); background: var(--series-a); }
+.rel-order { fill: var(--inedible); background: var(--inedible); }
+.rel-far { fill: var(--series-b); background: var(--series-b); }
+.chart a:hover circle { fill-opacity: 1; stroke: var(--ink); }
+.gap-yes { stroke: var(--ink); stroke-width: 2.5; }
+.gap-no { stroke: var(--poisonous); stroke-width: 2.5; }
+.gap-dot { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.chart a:hover text { text-decoration: underline; }

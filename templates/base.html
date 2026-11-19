@@ -4,6 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{% endblock %} · Doppelshroom</title>
+{# Link previews: what chat apps and social sites show when someone shares a page. #}
+{% set preview = og if og is defined else {} %}
+{% set summary = preview.description or "Are poisonous mushroom lookalikes close relatives, or just lookalikes? A DNA comparison. Educational, not an identification tool." %}
+<meta name="description" content="{{ summary }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Doppelshroom">
+<meta property="og:title" content="{{ preview.title or (self.title() ~ ' · Doppelshroom') }}">
+<meta property="og:description" content="{{ summary }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta property="og:image" content="{{ request.base_url }}static/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Doppelshroom: a toadstool beside old drawings of mushrooms on handmade paper">
+<meta name="twitter:card" content="summary_large_image">
 <script>
 try {
   const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
@@ -33,11 +47,13 @@ addEventListener("pagereveal", (e) => {
   "glossary": '<path d="M3 13.5v-10a1 1 0 0 1 1-1h9v9H4.5a1.5 1.5 0 0 0 0 3H13"/>',
   "method": '<path d="M5 2c0 4 6 4 6 6s-6 2-6 6M11 2c0 4-6 4-6 6s6 2 6 6M6 4.5h4M6 11.5h4"/>',
   "sources": '<path d="M6 4h8M6 8h8M6 12h8M2.5 4h.1M2.5 8h.1M2.5 12h.1"/>',
+  "analysis": '<path d="M2 2v12h12"/><circle cx="6" cy="9.5" r="1"/><circle cx="9" cy="6.5" r="1"/><circle cx="12.5" cy="4" r="1"/>',
+  "about": '<circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/>',
 } %}
 <header class="top">
   <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 28 26" aria-hidden="true"><path class="cap" d="M2 13C2 3 26 3 26 13Q14 15.5 2 13Z"/><path class="stem" d="M9.5 13.6Q9 22 10 24H18Q19 22 18.5 13.6Z"/></svg>Doppelshroom</a>
   <nav>
-    {% for href, label, icon in [("/", "Search", "search"), ("/lens", "Lens", "lens"), ("/compare", "Compare", "compare"), ("/quiz", "Quiz", "quiz"), ("/glossary", "Glossary", "glossary"), ("/method", "How it works", "method"), ("/sources", "Sources", "sources")] %}
+    {% for href, label, icon in [("/", "Search", "search"), ("/lens", "Lens", "lens"), ("/compare", "Compare", "compare"), ("/analysis", "Analysis", "analysis"), ("/quiz", "Quiz", "quiz"), ("/glossary", "Glossary", "glossary"), ("/method", "Method", "method"), ("/sources", "Sources", "sources"), ("/about", "About", "about")] %}
     <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}><svg class="ico" viewBox="0 0 16 16" aria-hidden="true">{{ icons[icon]|safe }}</svg>{{ label }}</a>
     {% endfor %}
     <button class="theme" id="theme" type="button" aria-label="Switch theme">

@@ -22,8 +22,7 @@ const photo = (s, size) => (s.photo
   ? `<img src="${esc(s.photo[size])}" alt="${esc(`Photo of ${common(s)} (${s.name})`)}" title="${esc(s.photo.attribution)}" loading="lazy">`
   : `<span class="nophoto"></span>`);
 const names = (s) => `<b>${esc(common(s))}</b><i>${esc(s.name)}</i>`;
-// Found by its exact scientific name: only then may the species page show cooking steps.
-const card = (s) => `<a class="card" href="/species/${s.id}${s.exact ? "?via=name" : ""}">${photo(s, "square")}
+const card = (s) => `<a class="card" href="/species/${s.id}${s.byName ? "?via=name" : ""}">${photo(s, "square")}
   <span>${names(s)}<small>${s.status ? statusTag(s) : ""}${s.count ? `${s.count.toLocaleString("en")} record${s.count > 1 ? "s" : ""}` : ""}${s.note ? esc(s.note) : ""}</small></span></a>`;
 const cards = (el, list, empty) => { el.innerHTML = list.length ? list.map(card).join("") : `<p class="caption">${empty}</p>`; };
 const note = (el, text) => { el.innerHTML = `<p class="caption">${esc(text)}</p>`; };
@@ -35,7 +34,8 @@ function initSearch() {
     if (q.length < 2) { $("name-results").innerHTML = ""; return; }
     try {
       const list = await api(`/api/find?q=${encodeURIComponent(q)}`);
-      list.forEach((s) => { s.exact = s.name.toLowerCase() === q.toLowerCase(); });
+      // Found by name (not by the lens or a description): only then may the species page show cooking steps.
+      list.forEach((s) => { s.byName = true; });
       if (q === $("name").value.trim()) cards($("name-results"), list, "No mushroom species found with that name."); // ignore answers to older typing
     } catch (e) { note($("name-results"), e.message); }
   };
@@ -107,9 +107,22 @@ async function initSpecies() {
   const list = (items) => items.map((t) => `<li>${esc(t)}</li>`).join("");
   api(`/api/facts/${id}`).then((f) => { $("facts").innerHTML = list(f); })
     .catch((e) => { $("facts").innerHTML = `<li class="caption">${esc(e.message)}</li>`; });
-  if (params.get("via") === "name" && s.status === "edible" && lab.from === "checked") {
-    api(`/api/prep/${id}`).then((p) => { $("prep").innerHTML = list(p); $("prep-box").hidden = false; }).catch(() => {});
+  if (params.get("via") === "name" && s.status === "edible") {
+    api(`/api/prep/${id}`).then((p) => {
+      $("prep").innerHTML = list(p);
+      // Recipe searches on outside cooking sites, by common name ("mushroom" added so "chicken of the woods" finds the fungus).
+      const q = encodeURIComponent(`${(s.common_name || s.name).toLowerCase()}${/mushroom/i.test(s.common_name || "") ? "" : " mushroom"}`);
+      const sites = [["BBC Good Food", `https://www.bbcgoodfood.com/search?q=${q}`], ["Epicurious", `https://www.epicurious.com/search?q=${q}`],
+        ["more on DuckDuckGo", `https://duckduckgo.com/?q=${q}+recipe`]];
+      $("recipes").innerHTML = `Recipes: ${sites.map(([name, url]) => `<a href="${url}" rel="noopener" target="_blank">${name}</a>`).join(" · ")}`;
+      $("prep-box").hidden = false;
+    }).catch(() => {});
   }
+
+  // Dopple reacts to the label. He never cheers an edible one: a label is not a green light.
+  const REACT = { deadly: "yikes. this one can kill. stay back", poisonous: "nope nope nope. poisonous", caution: "hmm. handle with care",
+    inedible: "pretty, but not food", edible: "labelled edible. still, ask an expert first!" };
+  setTimeout(() => say(s.name === "Amanita muscaria" ? "hey!! that's me!" : REACT[s.status] || "no label. that doesn't mean safe!"), 900);
 
   const looks = s.lookalikes;
   if (!looks.length) {
@@ -289,7 +302,7 @@ function treeView(el, tree, byId, mainId) {
       <text x="${x + 22}" y="${Y(l.y) + 4}">${esc(common(s))}<tspan class="latin"> ${esc(s.name)}</tspan></text></g></a>`;
   }).join("");
   const unit = depth > 0.3 ? 0.1 : 0.05;
-  svg += `<path class="branch" d="M${X(0)} ${H - 14} H${X(unit)}"/><text class="axis" x="${X(unit) + 8}" y="${H - 10}">${pct(unit)} DNA difference</text>`;
+  svg += `<path class="branch" d="M${X(0)} ${H - 14} H${X(unit)}"/><text class="axis" x="${X(unit) + 8}" y="${H - 10}">${unit} estimated changes per position (K2P)</text>`;
   el.innerHTML = `<svg class="tree" viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Family tree of this species and its lookalikes">${svg}</svg>
     <p class="key">${["deadly", "poisonous", "caution", "inedible", "edible", null].map((k) => `<span>${icon(k)}${STATUS[k] || "No label"}</span>`).join("")}</p>`;
 }
@@ -343,6 +356,7 @@ function initCompare() {
     show = show || twinMaps(); // Leaflet needs the maps to be visible when it starts
     const p = await sideBySide(chosen.a, chosen.b, show);
     if (p) $("compare-summary").textContent = `${verdict(p)}${p.shared_taxon ? ` (${p.shared_taxon})` : ""}.`;
+    if (p) say(p.dna ? `${pct(p.dna.distance)} of their dna differs. ${p.dna.distance < 0.1 ? "basically cousins" : "not so close!"}` : `${verdict(p).toLowerCase()}. no dna to compare though`);
   };
   const choose = async (side, id) => {
     $(`chosen-${side}`).innerHTML = `<p class="caption">Looking up…</p>`;
@@ -375,9 +389,10 @@ function initCompare() {
 
 // ---- Quiz ----
 function initQuiz() {
-  let right = 0, asked = 0;
+  let right = 0, asked = 0, streak = 0, best = 0;
+  try { best = +localStorage.getItem("quiz-best") || 0; } catch (e) { /* no storage: the best lasts this visit */ }
   const stage = $("stage");
-  const score = () => { $("score").textContent = `Score ${right} of ${asked}`; };
+  const score = () => { $("score").textContent = `Score ${right} of ${asked} · Streak ${streak} · Best streak ${best}`; };
   // A stepper: the next question slides in from the right as the last one leaves to the left.
   const slide = (from, to, fill = "none") => (matchMedia("(prefers-reduced-motion: reduce)").matches ? Promise.resolve()
     : stage.animate([{ transform: `translateX(${from})` }, { transform: `translateX(${to})` }],
@@ -403,6 +418,13 @@ function initQuiz() {
     $("choices").querySelectorAll("button").forEach((btn) => btn.addEventListener("click", () => {
       const ok = +btn.dataset.id === q.answer;
       asked += 1; right += ok;
+      streak = ok ? streak + 1 : 0;
+      if (streak > best) {
+        best = streak;
+        try { localStorage.setItem("quiz-best", best); } catch (e) { /* kept for this visit only */ }
+        if (best > 1) say(`new best streak: ${best}!`);
+      } else if (ok && streak >= 3) say(`${streak} in a row!!`);
+      else if (!ok) say(asked === 1 ? "ooh, tricky one" : "don't worry, they fool experts too");
       const r = btn.getBoundingClientRect();
       if (ok) spores(r.left + r.width / 2, r.top + r.height / 2, 40);
       else if (!calm()) btn.animate([{ translate: "0" }, { translate: "-8px" }, { translate: "7px" }, { translate: "-4px" }, { translate: "0" }], { duration: 400, easing: "ease-out" });
@@ -516,6 +538,98 @@ function initLens() {
   drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); stopCamera(); fromFile(e.dataTransfer.files[0]); });
 }
 
+// ---- Analysis page: three charts from analysis.json ----
+const pval = (p) => (p < 0.001 ? "p < 0.001" : `p = ${p.toFixed(3)}`);
+const RELATION = (r) => (["genus", "family"].includes(r) ? "close" : r === "order" ? "order" : "far");
+
+async function initAnalysis() {
+  let a;
+  try { a = await api("/api/analysis"); } catch (e) { $("verdict").textContent = e.message; return; }
+  const look = a.pairs, W = 760, L = 70, R = 20;
+  const max = Math.min(a.saturated, Math.max(...look.map((p) => p.k2p), ...a.random_k2p) * 1.05);
+  const X = (v) => L + (Math.min(v, max) / max) * (W - L - R);
+  const axis = (y) => [0, max / 4, max / 2, (3 * max) / 4, max].map((v) =>
+    `<line class="grid" x1="${X(v)}" x2="${X(v)}" y1="8" y2="${y}"/><text class="axis" x="${X(v)}" y="${y + 16}" text-anchor="middle">${v.toFixed(2)}</text>`).join("");
+  const median = (xs) => { const s = [...xs].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]; };
+  const closer = a.lookalike.median < a.random.median;
+
+  // 1. Lookalike pairs against random pairs.
+  const rows = [["Lookalikes", look.map((p) => p.k2p), "s-a"], ["Random pairs", a.random_k2p, "s-b"]];
+  let svg = axis(150);
+  rows.forEach(([label, xs, cls], i) => {
+    const y0 = 30 + i * 60;
+    svg += `<text class="axis" x="${L - 10}" y="${y0 + 4}" text-anchor="end">${label}</text>`;
+    svg += xs.map((v) => `<circle class="${cls} dot" cx="${X(v)}" cy="${y0 + (Math.random() - 0.5) * 34}" r="3"/>`).join("");
+    svg += `<line class="median" x1="${X(median(xs))}" x2="${X(median(xs))}" y1="${y0 - 22}" y2="${y0 + 22}"/>`;
+  });
+  $("strip").innerHTML = `<svg viewBox="0 0 ${W} 175" role="img" aria-label="DNA distances of lookalike pairs and random pairs">${svg}</svg>`;
+  $("strip-result").textContent = `Lookalikes have a median distance of ${a.lookalike.median.toFixed(2)}, random pairs ${a.random.median.toFixed(2)}. `
+    + `${pct(a.lookalike.same_family)} of lookalike pairs share a genus or family, against ${pct(a.random.same_family)} of random pairs. `
+    + `${a.closer.p < 0.05 ? "Lookalikes are clearly closer relatives than chance" : "That is no clearer than chance"} (${pval(a.closer.p)}, ${a.permutations.toLocaleString("en")} shuffles).`;
+
+  // 2. Confusion against distance.
+  const H = 300, B = 30, maxCount = Math.max(...look.map((p) => p.count));
+  const Y = (c) => 10 + (1 - Math.log10(c) / Math.log10(maxCount)) * (H - B - 10);
+  svg = axis(H - B);
+  [1, 10, 100, 1000, 10000].filter((c) => c <= maxCount).forEach((c) => {
+    svg += `<line class="grid" x1="${L}" x2="${W - R}" y1="${Y(c)}" y2="${Y(c)}"/><text class="axis" x="${L - 10}" y="${Y(c) + 4}" text-anchor="end">${c.toLocaleString("en")}</text>`;
+  });
+  svg += look.map((p) => `<a href="/compare?a=${p.focal_id}&amp;b=${p.other_id}"><circle class="dot rel-${RELATION(p.rank)}" cx="${X(p.k2p)}" cy="${Y(p.count)}" r="4">
+    <title>${esc(p.focal)} and ${esc(p.other)}: confused ${p.count} times, K2P ${p.k2p.toFixed(3)}</title></circle></a>`).join("");
+  $("scatter").innerHTML = `<p class="key"><span><i class="sw rel-close"></i>Same genus or family</span><span><i class="sw rel-order"></i>Same order</span><span><i class="sw rel-far"></i>Further apart</span></p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Times confused against DNA distance for each lookalike pair">${svg}</svg>`;
+  const rho = a.confusion.rho;
+  $("scatter-result").textContent = `Spearman correlation ${rho.toFixed(2)} (${pval(a.confusion.p)}). `
+    + (a.confusion.p >= 0.05 ? "How often a pair is confused tells you little about how related they are."
+      : rho < 0 ? "Pairs confused more often tend to be closer relatives." : "Pairs confused more often tend to be more distant, which points to look-alikes that evolved separately.");
+
+  // 3. Barcode gap.
+  const gaps = a.gaps, rowH = 22, GH = gaps.length * rowH + 40, LG = 210;
+  const XG = (v) => LG + (Math.min(v, max) / max) * (W - LG - R);
+  svg = [0, max / 2, max].map((v) => `<line class="grid" x1="${XG(v)}" x2="${XG(v)}" y1="0" y2="${GH - 24}"/><text class="axis" x="${XG(v)}" y="${GH - 8}" text-anchor="middle">${v.toFixed(2)}</text>`).join("");
+  svg += gaps.map((g, i) => {
+    const y = 12 + i * rowH, ok = g.gap > 0;
+    return `<a href="/species/${g.id}"><text class="axis" x="${LG - 12}" y="${y + 4}" text-anchor="end">${esc(common(g))}</text></a>
+      <line class="${ok ? "gap-yes" : "gap-no"}" x1="${XG(g.within)}" x2="${XG(g.between)}" y1="${y}" y2="${y}"/>
+      <circle class="gap-dot" cx="${XG(g.within)}" cy="${y}" r="3.5"><title>${esc(g.name)}: its own ${g.barcodes} barcodes differ by up to ${g.within.toFixed(3)}</title></circle>
+      <circle class="gap-dot" cx="${XG(g.between)}" cy="${y}" r="3.5"><title>Closest lookalike, ${esc(g.nearest)}: ${g.between.toFixed(3)}</title></circle>`;
+  }).join("");
+  $("gaps").innerHTML = `<svg viewBox="0 0 ${W} ${GH}" role="img" aria-label="Barcode gap for each species">${svg}</svg>`;
+  const withGap = gaps.filter((g) => g.gap > 0).length;
+  $("gap-result").textContent = `${withGap} of ${gaps.length} species have a barcode gap, so their ITS barcode alone separates them from every lookalike on record.`;
+
+  $("verdict").textContent = `Across ${a.lookalike.pairs} lookalike pairs from ${a.focal} common mushrooms: `
+    + (a.closer.p < 0.05 && closer ? "lookalikes are closer relatives than chance, " : "lookalikes are not reliably closer relatives than chance, ")
+    + `yet ${pct(1 - a.lookalike.same_family)} of them are not even in the same family. Many doubles are just doubles.`;
+  $("analysis-meta").textContent = `Computed ${a.generated} by analyze.py from cached iNaturalist and GenBank data.`;
+  say(a.closer.p < 0.05 ? "told you. science!" : "huh. interesting, right?");
+}
+
+// ---- DNA lens: find a species from a pasted sequence ----
+function initSequence() {
+  $("seq-example").addEventListener("click", async () => {
+    try { $("seq").value = (await api("/api/example-sequence")).sequence; } catch (e) { note($("seq-status"), e.message); }
+  });
+  $("seq-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("seq-results").hidden = true;
+    note($("seq-status"), "Comparing k-mers, then aligning the closest barcodes…");
+    try {
+      const r = await api("/api/identify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sequence: $("seq").value }) });
+      if (!r.matches.length) { note($("seq-status"), `No close barcode among the ${r.references} this site holds.`); return; }
+      note($("seq-status"), `Compared against ${r.references} barcodes.`);
+      r.matches.forEach((m) => { m.note = `${(m.identity * 100).toFixed(1)}% identical over ${m.length} positions · K2P ${m.k2p === null ? "n/a" : m.k2p.toFixed(3)}`; m.count = 0; });
+      cards($("seq-matches"), r.matches, "");
+      r.dangerous.forEach((d) => { d.note = ""; d.count = 0; });
+      $("seq-danger-title").hidden = !r.dangerous.length;
+      cards($("seq-danger"), r.dangerous, "");
+      $("seq-results").hidden = false;
+      const best = r.matches[0];
+      say(best.identity > 0.97 ? `${(best.identity * 100).toFixed(0)}% match. dna doesn't lie!` : "hmm, no close match. maybe a species i haven't met");
+    } catch (err) { note($("seq-status"), err.message); }
+  });
+}
+
 // Send a picture (a JPEG data URL) to the lens and show what comes back.
 async function look(url) {
   $("preview").innerHTML = `<img src="${url}" alt="Your photo">`;
@@ -537,6 +651,7 @@ async function look(url) {
     cards($("matches"), r.matches, "");
     r.dangerous.forEach((d) => { d.note = `Mistaken for ${d.mixed_with.join(", ")}`; d.count = 0; });
     cards($("dangerous"), r.dangerous, "None of the possible matches has a poisonous lookalike on record. That does not make any of them safe.");
+    say(r.dangerous.length ? `careful: ${r.dangerous.length} dangerous lookalike${r.dangerous.length > 1 ? "s" : ""}` : "no dangerous lookalikes on file. still don't eat it!");
     $("results").hidden = false;
   } catch (e) { note($("lens-status"), e.message); }
 }
@@ -544,6 +659,8 @@ async function look(url) {
 if ($("name")) initSearch();
 if ($("describe")) initDescribe();
 if ($("file")) initLens();
+if ($("seq-form")) initSequence();
+if ($("strip")) initAnalysis();
 if ($("lookalikes")) initSpecies();
 if ($("spotlight")) initSpotlight();
 if ($("locate")) initNear();
