@@ -1,4 +1,4 @@
-"""Gemini turns words or a photo into candidate species names, and writes short facts and preparation steps."""
+"""Gemini turns words or a photo into candidate species names, and writes short facts about a species."""
 import json
 import os
 import threading
@@ -33,10 +33,6 @@ FACTS = (
     "Give 5 short facts about the fungus {}: where and when it grows, how to recognise it, and how to tell it "
     "apart from the species it is most often confused with. One plain sentence each. Do not say whether it is "
     "edible or how to cook it."
-)
-PREP = (
-    "{} is an edible mushroom. List the steps to clean and cook it, in order, one plain sentence each, at most 6. "
-    "Put any step needed for safety first, such as cooking it fully, and say so if it must never be eaten raw."
 )
 
 
@@ -110,6 +106,3 @@ def photo(data, mime):
 def facts(name):
     return strings(ask(TEXT_MODELS, FACTS.format(name), [{"text": name}], LIST)["items"])
 
-
-def prep(name):
-    return strings(ask(TEXT_MODELS, PREP.format(name), [{"text": name}], LIST)["items"])

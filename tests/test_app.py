@@ -22,10 +22,10 @@ def test_identify_rejects_text_that_is_not_dna():
     assert r.status_code == 422
 
 
-def test_prep_refused_for_a_poisonous_species(monkeypatch):
+def test_recipes_refused_for_a_poisonous_species(monkeypatch):
     monkeypatch.setattr(lookup, "taxon", lambda i: {"id": i, "name": "Amanita virosa"})
-    r = client.get("/api/prep/58685")
-    assert r.status_code == 404  # Amanita virosa is poisonous in species.csv, so no cooking steps
+    r = client.get("/api/recipes/58685")
+    assert r.status_code == 404  # Amanita virosa is poisonous in species.csv, so no recipes
 
 
 def test_pages_render():

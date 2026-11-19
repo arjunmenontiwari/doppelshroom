@@ -38,7 +38,7 @@ def tier(path):
     if path in ("/api/identify", "/api/example-sequence"):
         return "dna"
     if path.startswith(("/api/profile/", "/api/dna/", "/api/pair", "/api/family/", "/api/season/", "/api/place/",
-                        "/api/near", "/api/occurrences", "/api/quiz", "/api/spotlight", "/api/facts/", "/api/prep/",
+                        "/api/near", "/api/occurrences", "/api/quiz", "/api/spotlight", "/api/facts/", "/api/recipes/",
                         "/api/find", "/api/places", "/species/")):
         return "heavy"
     return "api" if path.startswith("/api/") else "page"

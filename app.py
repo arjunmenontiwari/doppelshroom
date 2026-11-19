@@ -201,7 +201,7 @@ def ai_down(request, error):
     return JSONResponse({"detail": str(error)}, status_code=503)
 
 
-# AI helpers. Suggested names are checked against iNaturalist; facts and cooking steps are shown as AI-written.
+# AI helpers. Suggested names are checked against iNaturalist; facts are shown as AI-written.
 @app.get("/api/describe")
 def describe(q: str = Query(min_length=3, max_length=200)):
     return lookup.describe(q)
@@ -212,9 +212,9 @@ def facts(inat_id: Id):
     return found(lookup.facts(inat_id))
 
 
-@app.get("/api/prep/{inat_id}")
-def prep(inat_id: Id):
-    return found(lookup.prep(inat_id))  # 404 unless the species is labelled edible
+@app.get("/api/recipes/{inat_id}")
+def recipes(inat_id: Id):
+    return found(lookup.recipes(inat_id))  # 404 unless the species is labelled edible
 
 
 class Photo(BaseModel):

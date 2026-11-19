@@ -463,13 +463,20 @@ def facts(inat_id):
     return t and cached("facts", t["name"], lambda: gemini.facts(t["name"]))
 
 
-def prep(inat_id):
-    """Cooking steps, only for species labelled edible: by the hand-checked list, or by a Wikipedia
+RECIPE_SITES = (("BBC Good Food", "https://www.bbcgoodfood.com/search?q={}"),
+                ("Epicurious", "https://www.epicurious.com/search?q={}"),
+                ("Allrecipes", "https://www.allrecipes.com/search?q={}"))
+
+
+def recipes(inat_id):
+    """Links to recipe searches, only for species labelled edible: by the hand-checked list, or by a Wikipedia
     infobox that lists nothing more dangerous than edible (labels() keeps the most dangerous value)."""
     t = taxon(inat_id)
     if not t or (labels([t["name"]]).get(t["name"]) or {}).get("status") != "edible":
         return None
-    return cached("prep", t["name"], lambda: gemini.prep(t["name"]))
+    name = (t["common_name"] or t["name"]).lower()
+    q = urllib.parse.quote_plus(name if "mushroom" in name else f"{name} mushroom")  # so "chicken of the woods" finds the fungus
+    return [{"site": site, "url": url.format(q)} for site, url in RECIPE_SITES]
 
 
 def build_pair(a_id, b_id):

@@ -58,7 +58,7 @@ The full charts live on the site's Analysis page, and `analyze.py` reproduces th
 
 - Edible and poisonous labels come from a hand-checked list (`species.csv`) or a Wikipedia infobox, **never from AI**. When the infobox lists several values, the most dangerous one wins.
 - The photo lens and the DNA lens **never say "edible"**. They point at dangerous lookalikes instead.
-- AI-written cooking steps appear only for species labelled edible with no warnings, found through name search, and the server enforces that too.
+- Recipe links (never AI-written steps) appear only for species labelled edible with no warnings, found through name search, and the server enforces that too.
 - `tests/test_safety.py` fails if any of this breaks.
 
 ## Run it yourself
@@ -70,7 +70,7 @@ pip install -r requirements.txt
 uvicorn app:app --port 8000     # then open http://127.0.0.1:8000
 ```
 
-The AI features (describe search, photo lens, quick facts, cooking steps) need a free [Gemini API key](https://aistudio.google.com/apikey) in a `.env` file:
+The AI features (describe search, photo lens, quick facts) need a free [Gemini API key](https://aistudio.google.com/apikey) in a `.env` file:
 
 ```
 GEMINI_API_KEY=your-key-here

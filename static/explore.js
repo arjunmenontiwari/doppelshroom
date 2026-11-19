@@ -34,7 +34,7 @@ function initSearch() {
     if (q.length < 2) { $("name-results").innerHTML = ""; return; }
     try {
       const list = await api(`/api/find?q=${encodeURIComponent(q)}`);
-      // Found by name (not by the lens or a description): only then may the species page show cooking steps.
+      // Found by name (not by the lens or a description): only then may the species page show recipe links.
       list.forEach((s) => { s.byName = true; });
       if (q === $("name").value.trim()) cards($("name-results"), list, "No mushroom species found with that name."); // ignore answers to older typing
     } catch (e) { note($("name-results"), e.message); }
@@ -108,14 +108,9 @@ async function initSpecies() {
   api(`/api/facts/${id}`).then((f) => { $("facts").innerHTML = list(f); })
     .catch((e) => { $("facts").innerHTML = `<li class="caption">${esc(e.message)}</li>`; });
   if (params.get("via") === "name" && s.status === "edible") {
-    api(`/api/prep/${id}`).then((p) => {
-      $("prep").innerHTML = list(p);
-      // Recipe searches on outside cooking sites, by common name ("mushroom" added so "chicken of the woods" finds the fungus).
-      const q = encodeURIComponent(`${(s.common_name || s.name).toLowerCase()}${/mushroom/i.test(s.common_name || "") ? "" : " mushroom"}`);
-      const sites = [["BBC Good Food", `https://www.bbcgoodfood.com/search?q=${q}`], ["Epicurious", `https://www.epicurious.com/search?q=${q}`],
-        ["more on DuckDuckGo", `https://duckduckgo.com/?q=${q}+recipe`]];
-      $("recipes").innerHTML = `Recipes: ${sites.map(([name, url]) => `<a href="${url}" rel="noopener" target="_blank">${name}</a>`).join(" · ")}`;
-      $("prep-box").hidden = false;
+    api(`/api/recipes/${id}`).then((links) => {
+      $("recipes").innerHTML = links.map((r) => `<li><a href="${esc(r.url)}" rel="noopener" target="_blank">${esc(common(s))} recipes on ${esc(r.site)}</a></li>`).join("");
+      $("recipes-box").hidden = false;
     }).catch(() => {});
   }
 

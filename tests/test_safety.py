@@ -1,4 +1,4 @@
-"""The safety rules: cooking steps only for edible labels, and the lens never calls anything edible."""
+"""The safety rules: recipe links only for edible labels, and the lens never calls anything edible."""
 import pytest
 
 import gemini
@@ -8,8 +8,7 @@ from conftest import card
 
 @pytest.fixture
 def species(monkeypatch):
-    """A fake taxon lookup and labels, and a Gemini that records whether it was asked."""
-    asked = []
+    """A fake taxon lookup and labels."""
     taxa = {1: card(1, "Edibilis checked"), 2: card(2, "Edibilis wiki"), 3: card(3, "Mortalis deadly"),
             4: card(4, "Cautio wiki"), 5: card(5, "Nullus label")}
     labels = {"Edibilis checked": {"status": "edible", "from": "checked"}, "Edibilis wiki": {"status": "edible", "from": "wikipedia"},
@@ -17,19 +16,17 @@ def species(monkeypatch):
               "Nullus label": None}
     monkeypatch.setattr(lookup, "taxon", lambda i: taxa.get(i))
     monkeypatch.setattr(lookup, "labels", lambda names: {n: labels[n] for n in names})
-    monkeypatch.setattr(gemini, "prep", lambda name: asked.append(name) or ["Cook it fully."])
-    return asked
 
 
 @pytest.mark.parametrize("inat_id", [1, 2])
-def test_prep_for_edible_labels(species, inat_id):
-    assert lookup.prep(inat_id) == ["Cook it fully."]
+def test_recipes_for_edible_labels(species, inat_id):
+    links = lookup.recipes(inat_id)
+    assert len(links) == 3 and all(l["url"].startswith("https://") and "mushroom" in l["url"] for l in links)
 
 
 @pytest.mark.parametrize("inat_id", [3, 4, 5, 999])
-def test_no_prep_otherwise_and_ai_never_asked(species, inat_id):
-    assert lookup.prep(inat_id) is None
-    assert species == []  # Gemini is not even asked to write steps for these
+def test_no_recipes_otherwise(species, inat_id):
+    assert lookup.recipes(inat_id) is None
 
 
 def test_lens_never_says_edible(monkeypatch):
