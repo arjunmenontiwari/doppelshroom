@@ -1,0 +1,14 @@
+# Never bake the API key, local caches or development files into the image.
+.env
+.venv/
+cache/
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+.git/
+.github/
+.claude/
+tests/
+requirements-dev.txt
+pytest.ini
+mushroom_tree.png

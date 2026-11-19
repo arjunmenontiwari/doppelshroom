@@ -1,3 +1,14 @@
+---
+title: Doppelshroom
+emoji: 🍄
+colorFrom: yellow
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: Are poisonous mushroom lookalikes related? DNA says.
+---
+
 # Doppelshroom 🍄
 
 [![tests](https://github.com/arjunmenontiwari/doppelshroom/actions/workflows/tests.yml/badge.svg)](https://github.com/arjunmenontiwari/doppelshroom/actions/workflows/tests.yml)
@@ -86,6 +97,10 @@ Live lookups are cached in `cache/`, so each question is asked of the outside da
 ## Data and credits
 
 [NCBI GenBank and Taxonomy](https://www.ncbi.nlm.nih.gov/) · [iNaturalist](https://www.inaturalist.org/) (photos under their Creative Commons licences, credited on each page) · [GBIF](https://www.gbif.org/) · [Wikipedia](https://www.wikipedia.org/) (CC BY-SA) · [Google Gemini](https://ai.google.dev/) · Fonts: Newsreader, Archivo and Gaegu (SIL OFL). Full credits are on the site's Sources page.
+
+## Licence
+
+The code is under the [MIT License](LICENSE). Data, photos, text, fonts and artwork keep their own licences, listed under *Data and credits* above and on the site's Sources page.
 
 ## Who made this
 

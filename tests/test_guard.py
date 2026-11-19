@@ -77,5 +77,5 @@ def test_oversized_bodies_are_refused():
 
 def test_security_headers_are_sent():
     r = fresh_client().get("/api/find")
-    assert "frame-ancestors 'none'" in r.headers["content-security-policy"]
+    assert "frame-ancestors 'self' https://huggingface.co" in r.headers["content-security-policy"]
     assert r.headers["x-content-type-options"] == "nosniff"
