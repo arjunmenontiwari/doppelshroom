@@ -1,14 +1,3 @@
----
-title: Doppelshroom
-emoji: 🍄
-colorFrom: yellow
-colorTo: red
-sdk: docker
-app_port: 7860
-pinned: false
-short_description: Are poisonous mushroom lookalikes related? DNA says.
----
-
 # Doppelshroom 🍄
 
 [![tests](https://github.com/arjunmenontiwari/doppelshroom/actions/workflows/tests.yml/badge.svg)](https://github.com/arjunmenontiwari/doppelshroom/actions/workflows/tests.yml)

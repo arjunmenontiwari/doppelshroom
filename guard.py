@@ -59,7 +59,7 @@ def csp(template):
         "object-src 'none'",
         "base-uri 'none'",
         "form-action 'self'",
-        "frame-ancestors 'self' https://huggingface.co",  # the Hugging Face Space page shows the site in a frame
+        "frame-ancestors 'none'",
     ])
 
 

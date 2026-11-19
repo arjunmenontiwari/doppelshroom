@@ -1,0 +1,16 @@
+# Render blueprint: in the Render dashboard choose New > Blueprint and pick this repo.
+services:
+  - type: web
+    name: doppelshroom
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # One worker: the rate limits are counted per process. --proxy-headers makes those limits see each visitor's
+    # address instead of Render's proxy.
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips '*'
+    healthCheckPath: /about
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: GEMINI_API_KEY
+        sync: false  # Render asks for the value when the blueprint is created; it never goes in the repo
