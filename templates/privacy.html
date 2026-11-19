@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Privacy and terms{% endblock %}
+{% block content %}
+<section class="head">
+  <div>
+    <h1>Privacy and terms</h1>
+    <p class="lede">No accounts, no tracking, no cookies. This page lists everything that does leave your browser.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What this site keeps</h2>
+  <img class="plate" src="/static/plates/t303.jpg" alt="" style="--tilt: -3deg">
+  <div class="prose">
+    <p>Nothing about you. Searches by name, place or description are saved on the server only as their answers, so the same question is not asked of the databases twice. Your photos and your location are never saved.</p>
+    <p>The server that hosts the site may keep standard access logs, such as IP address and page address, for a short time to keep it running.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Cookies and storage</h2>
+  <div class="prose">
+    <p>This site sets no cookies. If you switch between light and dark mode, that choice is remembered in your browser's local storage and never sent anywhere. There is nothing to consent to, so there is no cookie banner.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Services this site uses</h2>
+  <div class="cols">
+    <div><h3>Google Gemini</h3><p>Receives your photo on the Lens page and your text on "Describe it", to suggest species names. Google may use what is sent to improve its products. <a href="https://ai.google.dev/gemini-api/terms">Gemini terms</a></p></div>
+    <div><h3>iNaturalist</h3><p>Photos load from its servers (hosted by Amazon Web Services), so they see your IP address. On "Near you", your location rounded to about 10 km is sent to it to find nearby records. <a href="https://www.inaturalist.org/pages/privacy">Privacy policy</a></p></div>
+    <div><h3>GBIF</h3><p>Map tiles load from its servers, so it sees your IP address. <a href="https://www.gbif.org/terms/privacy-policy">Privacy policy</a></p></div>
+    <div><h3>NCBI and Wikipedia</h3><p>Asked by the server only. Your browser never contacts them unless you follow a link.</p></div>
+  </div>
+  <p class="caption">There are no analytics, ads or social media scripts. Fonts and the map library are served from this site, not from a third party.</p>
+</section>
+
+<section>
+  <h2>Terms of use</h2>
+  <img class="plate" src="/static/plates/t201.jpg" alt="" style="--tilt: 2deg">
+  <div class="prose">
+    <p>Doppelshroom is an educational student project. It is not a mushroom identification tool and gives no advice you should act on. Edibility labels, AI-written facts and preparation steps can be wrong. Never eat a wild mushroom unless an expert has identified it in person.</p>
+    <p>The site is provided as it is, without any guarantee that it is correct, complete or available. Data, photos and text belong to their sources and are used under the licences listed on the <a href="/sources">sources page</a>.</p>
+    <p>Questions or corrections: <a href="https://github.com/arjunmenontiwari/doppelshroom/issues">open an issue on GitHub</a>.</p>
+  </div>
+</section>
+{% endblock %}
+{% block script %}{% endblock %}

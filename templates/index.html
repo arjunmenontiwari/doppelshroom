@@ -2,20 +2,20 @@
 {% block title %}Search{% endblock %}
 {% block content %}
 <section class="head">
-  <div class="tag">The question</div>
   <div>
-    <h1>Are poisonous lookalikes <em>close relatives</em>, or just <em>lookalikes</em>?</h1>
-    <p class="lede">Many edible mushrooms have a double that people mix them up with, and some doubles are poisonous. Looks cannot say whether two mushrooms are related. DNA can. Find any mushroom to see its lookalikes and how closely related they are.</p>
+    <h1>Are poisonous lookalikes close relatives, or just lookalikes?</h1>
+    <p class="lede">Many edible mushrooms have a double that people mix them up with, and some doubles are poisonous. Looks cannot say whether two mushrooms are related. DNA can.</p>
   </div>
 </section>
 
 <section>
-  <div class="tag">Today's mix-up</div>
+  <h2>Today's mix-up</h2>
+  <img class="plate" src="/static/plates/t201.jpg" alt="" style="--tilt: 3deg">
   <div id="spotlight"><p class="caption">Looking up today's pair…</p></div>
 </section>
 
 <section>
-  <div class="tag">By name</div>
+  <h2>Search by name</h2>
   <div>
     <input class="field" id="name" type="search" placeholder="chanterelle, Amanita, death cap" aria-label="Mushroom name" autocomplete="off">
     <div class="cards" id="name-results"></div>
@@ -23,7 +23,8 @@
 </section>
 
 <section>
-  <div class="tag">Describe it</div>
+  <h2>Describe it</h2>
+  <img class="plate" src="/static/plates/t187.jpg" alt="" style="--tilt: -4deg">
   <div>
     <form class="fields joined" id="describe-form">
       <input class="field" id="describe" type="search" placeholder="orange funnel, pine forest, Scotland" aria-label="Describe the mushroom" maxlength="200" autocomplete="off">
@@ -36,7 +37,7 @@
 </section>
 
 <section>
-  <div class="tag">By place</div>
+  <h2>By place</h2>
   <div>
     <div class="fields">
       <input class="field" id="place" type="search" placeholder="A country, region or park" aria-label="Place" autocomplete="off">
@@ -55,7 +56,8 @@
 </section>
 
 <section>
-  <div class="tag">Near you</div>
+  <h2>Near you</h2>
+  <img class="plate" src="/static/plates/t34.jpg" alt="" style="--tilt: 2deg">
   <div>
     <div class="fields">
       <button class="button" id="locate" type="button">Use my location</button>
@@ -68,18 +70,6 @@
     <p class="summary" id="near-title"></p>
     <div class="cards" id="near-results"></div>
     <p class="caption">Species with confirmed iNaturalist records within 50 km of you in that month. Your location is rounded to about 10 km before it is sent, and it is not stored.</p>
-  </div>
-</section>
-
-<section>
-  <div class="tag">Explore</div>
-  <div class="doors">
-    <a href="/lens"><b>Lens</b><span>Upload a photo to see possible matches and their dangerous lookalikes.</span><i>→</i></a>
-    <a href="/compare"><b>Compare</b><span>Any two species side by side: DNA, season and maps.</span><i>→</i></a>
-    <a href="/quiz"><b>Quiz</b><span>Can you tell a mushroom from its lookalike?</span><i>→</i></a>
-    <a href="/glossary"><b>Glossary</b><span>Gills, volvas, spore prints and DNA barcodes explained.</span><i>→</i></a>
-    <a href="/method"><b>How it works</b><span>From a mushroom to a DNA comparison, in three steps.</span><i>→</i></a>
-    <a href="/sources"><b>Sources</b><span>Where every fact on this site comes from.</span><i>→</i></a>
   </div>
 </section>
 {% endblock %}

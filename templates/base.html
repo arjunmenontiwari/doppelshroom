@@ -4,29 +4,69 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{% endblock %} · Doppelshroom</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<script>
+try {
+  const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+  if (localStorage.getItem("walker") === "off") document.documentElement.dataset.walker = "off";
+} catch (e) {}
+// The next page is revealed by an ink blot that spreads from where the link was clicked.
+addEventListener("pagereveal", (e) => {
+  if (!e.viewTransition) return;
+  try {
+    const p = JSON.parse(sessionStorage.getItem("ink"));
+    sessionStorage.removeItem("ink");
+    if (p) { document.documentElement.style.setProperty("--ink-x", p[0] + "px"); document.documentElement.style.setProperty("--ink-y", p[1] + "px"); }
+  } catch (err) { /* no stored point: the blot spreads from the middle */ }
+});
+</script>
+<link rel="stylesheet" href="{{ asset("fonts/fonts.css") }}">
 <link rel="stylesheet" href="{{ asset("style.css") }}">
 {% block head %}{% endblock %}
 </head>
 <body>
-
+<a class="skip" href="#main">Skip to content</a>
+{% set icons = {
+  "search": '<circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/>',
+  "lens": '<path d="M2 5h3l1.5-2h3L11 5h3v8H2z"/><circle cx="8" cy="9" r="2.5"/>',
+  "compare": '<path d="M2 3h5v10H2zM9 3h5v10H9z"/>',
+  "quiz": '<circle cx="8" cy="8" r="6"/><path d="M6.2 6.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.3M8 11.6v.1"/>',
+  "glossary": '<path d="M3 13.5v-10a1 1 0 0 1 1-1h9v9H4.5a1.5 1.5 0 0 0 0 3H13"/>',
+  "method": '<path d="M5 2c0 4 6 4 6 6s-6 2-6 6M11 2c0 4-6 4-6 6s6 2 6 6M6 4.5h4M6 11.5h4"/>',
+  "sources": '<path d="M6 4h8M6 8h8M6 12h8M2.5 4h.1M2.5 8h.1M2.5 12h.1"/>',
+} %}
 <header class="top">
-  <a class="brand" href="/">Doppelshroom</a>
+  <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 28 26" aria-hidden="true"><path class="cap" d="M2 13C2 3 26 3 26 13Q14 15.5 2 13Z"/><path class="stem" d="M9.5 13.6Q9 22 10 24H18Q19 22 18.5 13.6Z"/></svg>Doppelshroom</a>
   <nav>
-    {% for href, label in [("/", "Search"), ("/lens", "Lens"), ("/compare", "Compare"), ("/quiz", "Quiz"), ("/glossary", "Glossary"), ("/method", "How it works"), ("/sources", "Sources")] %}
-    <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% for href, label, icon in [("/", "Search", "search"), ("/lens", "Lens", "lens"), ("/compare", "Compare", "compare"), ("/quiz", "Quiz", "quiz"), ("/glossary", "Glossary", "glossary"), ("/method", "How it works", "method"), ("/sources", "Sources", "sources")] %}
+    <a href="{{ href }}" {% if request.url.path == href %}aria-current="page"{% endif %}><svg class="ico" viewBox="0 0 16 16" aria-hidden="true">{{ icons[icon]|safe }}</svg>{{ label }}</a>
     {% endfor %}
+    <button class="theme" id="theme" type="button" aria-label="Switch theme">
+      <svg class="ico moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 1 1 6.4 2.5a4.4 4.4 0 0 0 7.1 7.1z"/></svg>
+      <svg class="ico sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg>
+    </button>
   </nav>
 </header>
 <div class="notice">Educational project. Not an identification tool. Never eat a mushroom based on this site.</div>
 
-<main>{% block content %}{% endblock %}</main>
+{% set painting = {"/": "undergrowth", "/lens": "oak", "/quiz": "oak", "/compare": "stream", "/method": "stream", "/sources": "stream", "/privacy": "stream"}.get(request.url.path, "trees") %}
+<main id="main" style="--painting: url('/static/paintings/{{ painting }}.jpg')">{% block content %}{% endblock %}</main>
+
+<div class="walker" id="walker">
+  <div class="bubble" id="bubble" role="status" hidden><p id="quip"></p><button class="link" id="walker-hide" type="button">shoo, hide me</button></div>
+  <button class="dopple" id="dopple" type="button" aria-label="Dopple the mushroom: say hello">
+  <svg viewBox="0 0 28 30" aria-hidden="true">
+    <line class="leg leg-a" x1="11.5" y1="24" x2="11" y2="28.5"/><line class="leg leg-b" x1="16.5" y1="24" x2="17" y2="28.5"/>
+    <path class="stem" d="M9.5 13.6Q9 22 10 24H18Q19 22 18.5 13.6Z"/>
+    <g class="eyes"><circle cx="12.4" cy="18" r=".95"/><circle cx="15.6" cy="18" r=".95"/></g>
+    <path class="cap" d="M2 13C2 3 26 3 26 13Q14 15.5 2 13Z"/>
+    <circle class="spot" cx="8" cy="8.5" r="1.6"/><circle class="spot" cx="14.5" cy="6" r="1.3"/><circle class="spot" cx="20" cy="9.5" r="1.5"/>
+  </svg>
+  </button>
+</div>
 
 <footer>
-  <span>Doppelshroom · a student project</span>
-  <span>Data: NCBI GenBank, NCBI Taxonomy, iNaturalist, GBIF, Wikipedia</span>
+  <span>Doppelshroom · grown slowly by Arjun, a student</span>
+  <span><button class="link" id="walker-toggle" type="button">Hide the walking mushroom</button> · <a href="/privacy">Privacy and terms</a> · <a href="/sources">Sources and licences</a></span>
 </footer>
 
 <script src="{{ asset("common.js") }}"></script>

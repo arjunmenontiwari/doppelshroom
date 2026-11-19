@@ -2,7 +2,6 @@
 {% block title %}Glossary{% endblock %}
 {% block content %}
 <section class="head">
-  <div class="tag">Glossary</div>
   <div>
     <h1>The words, explained</h1>
     <p class="lede">The parts of a mushroom that experts look at, and the DNA terms used on this site.</p>
@@ -10,7 +9,7 @@
 </section>
 
 <section>
-  <div class="tag">A mushroom</div>
+  <h2>A mushroom</h2>
   <div>
     <figure class="diagram">
       <svg viewBox="0 0 560 330" role="img" aria-label="Labelled drawing of a mushroom: cap, gills, ring, stem, volva and mycelium">
@@ -21,6 +20,7 @@
           <path d="M200 121 L215 133 M230 121 L240 133 M260 121 L265 133 M290 121 L290 133 M320 121 L315 133 M350 121 L340 133 M372 121 L360 133"/>
         </g>
         <path class="part" d="M270 134 H290 L294 262 H266 Z"/>
+        <use class="stipple" href="/static/stipple.svg#dots"/>
         <path class="part" d="M262 160 L298 160 L304 172 L256 172 Z"/>
         <path class="part" d="M248 262 C248 236 262 232 268 240 L292 240 C298 232 312 236 312 262 Z"/>
         <g class="thin">
@@ -35,7 +35,7 @@
           <text x="476" y="214">Stem</text><text x="476" y="254">Volva</text><text x="476" y="296">Mycelium</text>
         </g>
       </svg>
-      <figcaption class="caption">The shape of an Amanita, the genus with most deadly species. Not every mushroom has a ring or a volva, and the volva is often hidden in the soil.</figcaption>
+      <figcaption class="caption">The shape of an Amanita, the genus behind most deadly mushroom poisonings. Not every mushroom has a ring or a volva, and the volva is often hidden in the soil.</figcaption>
     </figure>
 
     <dl class="terms">
@@ -56,10 +56,10 @@
 </section>
 
 <section id="its">
-  <div class="tag">The barcode</div>
+  <h2>The barcode</h2>
   <div>
     <figure class="diagram">
-      <svg viewBox="0 0 640 150" role="img" aria-label="Ribosomal DNA: the 18S gene, the ITS1 spacer, the 5.8S gene, the ITS2 spacer and the 28S gene. The ITS barcode covers ITS1, 5.8S and ITS2.">
+      <svg viewBox="0 30 640 120" role="img" aria-label="Ribosomal DNA: the 18S gene, the ITS1 spacer, the 5.8S gene, the ITS2 spacer and the 28S gene. The ITS barcode covers ITS1, 5.8S and ITS2.">
         <path class="lead" d="M0 70 H640"/>
         <rect class="gene" x="10" y="52" width="170" height="36"/>
         <rect class="spacer" x="180" y="52" width="110" height="36"/>
@@ -70,7 +70,6 @@
         <g class="label mid"><text x="235" y="75">ITS1</text><text x="405" y="75">ITS2</text></g>
         <path class="lead" d="M180 108 V118 H460 V108"/>
         <g class="label mid"><text x="320" y="140">The ITS barcode</text></g>
-        <g class="label mid small"><text x="95" y="36">builds the ribosome</text><text x="235" y="36">cut out, thrown away</text><text x="320" y="20">builds the ribosome</text><text x="405" y="36">cut out, thrown away</text><text x="545" y="36">builds the ribosome</text></g>
       </svg>
       <figcaption class="caption">One copy of the ribosomal DNA. A fungus has many copies in a row, which makes it easy to read.</figcaption>
     </figure>

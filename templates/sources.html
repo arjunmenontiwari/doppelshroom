@@ -2,7 +2,6 @@
 {% block title %}Sources{% endblock %}
 {% block content %}
 <section class="head">
-  <div class="tag">Sources</div>
   <div>
     <h1>Where everything comes from</h1>
     <p class="lede">Species data comes from public databases. Each record used is linked below.</p>
@@ -10,7 +9,7 @@
 </section>
 
 <section>
-  <div class="tag">Species</div>
+  <h2>Species</h2>
   <div class="scroll">
     <table id="sources">
       <thead><tr><th>Species</th><th>Label</th><th>Label source</th><th>DNA barcode</th><th>Classification</th><th>Records</th><th>Photo</th></tr></thead>
@@ -20,18 +19,34 @@
 </section>
 
 <section>
-  <div class="tag">Databases</div>
+  <h2>Databases</h2>
   <div class="cols">
     <div><h3>NCBI GenBank</h3><p>DNA barcode sequences. Each accession number in the table links to the record used.</p></div>
     <div><h3>NCBI Taxonomy</h3><p>Family, order and the other classification ranks.</p></div>
     <div><h3>iNaturalist</h3><p>Common names and photos. Photos are used under the Creative Commons licence shown for each.</p></div>
     <div><h3>GBIF</h3><p>Where each species has been recorded. The country counts are a snapshot. The maps load live from GBIF.</p></div>
+    <div><h3>Google Gemini</h3><p>An AI that turns descriptions and photos into species names, which are then checked against iNaturalist. It also writes the quick facts and preparation steps on species pages, marked as AI-written. It never sets an edibility label.</p></div>
     <div><h3>Search pages</h3><p>Species outside the five pairs are looked up live: names, photos and lookalikes from iNaturalist, summaries and edibility labels from Wikipedia, barcodes from GenBank. Lookalikes are the species observers most often confuse, counted from corrected identifications.</p></div>
   </div>
 </section>
 
+<section id="licences">
+  <h2>Licences</h2>
+  <div class="cols">
+    <div><h3>Photos</h3><p>From iNaturalist observers under Creative Commons licences. Each photo names its author and licence: under the species photo, and when you hover over smaller photos.</p></div>
+    <div><h3>Text</h3><p>Species summaries are from Wikipedia under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, linked to each article.</p></div>
+    <div><h3>Maps</h3><p>Base maps © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors and <a href="https://openmaptiles.org/">OpenMapTiles</a>, served by GBIF. Records from <a href="https://www.gbif.org/terms">GBIF</a> under CC0 and CC BY.</p></div>
+    <div><h3>DNA and classification</h3><p>NCBI GenBank and Taxonomy data are public and free to use.</p></div>
+    <div><h3>Paintings</h3><p>Shown faintly at the top of each page, all public domain via Wikimedia Commons: Van Gogh, <a href="https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Undergrowth_with_two_Figures_(1890).jpg">Undergrowth with Two Figures</a> (1890) and <a href="https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Trees_and_undergrowth_-_Google_Art_Project.jpg">Trees and Undergrowth</a> (1887); Monet, <a href="https://commons.wikimedia.org/wiki/File:The_Bodmer_Oak,_Fontainebleau_Forest_MET_DT1560.jpg">The Bodmer Oak</a> (1865); Courbet, <a href="https://commons.wikimedia.org/wiki/File:Gustave_Courbet_-_Stream_in_the_Forest_-_55.982_-_Museum_of_Fine_Arts.jpg">Stream in the Forest</a> (1862).</p></div>
+    <div><h3>Plates</h3><p>The hand-coloured mushrooms beside some sections are from James Sowerby, <a href="https://commons.wikimedia.org/w/index.php?search=%22Coloured+Figures+of+English+Fungi+or+Mushrooms%22&amp;ns6=1">Coloured Figures of English Fungi or Mushrooms</a> (1797–1815), public domain via Wikimedia Commons. They decorate the page and are not identification guides for the species beside them.</p></div>
+    <div><h3>Fonts</h3><p>Newsreader, Archivo and Gaegu, under the SIL Open Font License 1.1 (<a href="/static/fonts/OFL-newsreader.txt">Newsreader</a>, <a href="/static/fonts/OFL-archivo.txt">Archivo</a>, <a href="/static/fonts/OFL-gaegu.txt">Gaegu</a>).</p></div>
+    <div><h3>Code</h3><p>Maps drawn with <a href="https://leafletjs.com">Leaflet</a> (BSD 2-Clause). DNA alignment and trees with <a href="https://biopython.org">Biopython</a> (Biopython License).</p></div>
+  </div>
+</section>
+
 <section id="refs">
-  <div class="tag">References</div>
+  <h2>References</h2>
+  <img class="plate" src="/static/plates/t36.jpg" alt="" style="--tilt: 2deg">
   <ol class="refs">
     <li>Schoch CL et al. (2012). Nuclear ribosomal internal transcribed spacer (ITS) region as a universal DNA barcode marker for Fungi. <i>PNAS</i> 109(16): 6241–6246. <a href="https://doi.org/10.1073/pnas.1117018109">doi:10.1073/pnas.1117018109</a></li>
   </ol>

@@ -2,7 +2,6 @@
 {% block title %}Lens{% endblock %}
 {% block content %}
 <section class="head">
-  <div class="tag">Lens</div>
   <div>
     <h1>What could it be, and what is it confused with?</h1>
     <p class="lede">Upload a photo of a mushroom. The lens suggests species it might be, and the poisonous species those are often mistaken for.</p>
@@ -10,14 +9,12 @@
 </section>
 
 <section>
-  <div class="tag">Warning</div>
   <div class="warning">
     <p><b>The lens never tells you a mushroom is safe to eat.</b> A photo cannot show spore colour, smell, the base of the stem or the other features experts check, and the AI makes mistakes. Deadly mushrooms look like edible ones. Never eat a wild mushroom unless an expert has identified it in person.</p>
   </div>
 </section>
 
 <section>
-  <div class="tag">Your photo</div>
   <div>
     <div class="drop" id="drop">
       <div class="drop-body" id="start">
@@ -40,20 +37,21 @@
       </div>
     </div>
     <div id="lens-status"></div>
-    <p class="caption">The photo is shrunk in your browser and sent to Google's Gemini, which suggests species names. This site does not keep it. On the free tier Google may use what is sent to improve its products, so do not upload anything private. The camera only takes a picture when you press Take photo, and it turns off straight after.</p>
+    <p class="caption">The photo is shrunk in your browser and sent to Google Gemini. This site does not keep it, but Google may use it to improve its products, so do not upload anything private. The camera turns off as soon as you take the photo.</p>
   </div>
 </section>
 
 <div id="results" hidden>
   <section>
-    <div class="tag">Possible matches</div>
+    <h2>Possible matches</h2>
+  <img class="plate" src="/static/plates/t303.jpg" alt="" style="--tilt: 3deg">
     <div>
       <div class="cards" id="matches"></div>
       <p class="caption">Suggested by AI from the photo, then checked against iNaturalist. The lens does not show whether any of them is edible.</p>
     </div>
   </section>
   <section>
-    <div class="tag">Dangerous lookalikes</div>
+    <h2>Dangerous lookalikes</h2>
     <div>
       <div class="cards" id="dangerous"></div>
       <p class="caption">Poisonous species that iNaturalist observers often confuse with the possible matches. If any of these could be what you found, treat your mushroom as poisonous.</p>

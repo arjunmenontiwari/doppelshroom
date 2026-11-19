@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Species{% endblock %}
 {% block head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="{{ asset("vendor/leaflet.css") }}">
+<script src="{{ asset("vendor/leaflet.js") }}"></script>
 {% endblock %}
 {% block content %}
 <section class="head">
-  <div class="tag">Species</div>
   <div class="who">
     <div id="photo"></div>
     <div>
@@ -19,32 +18,44 @@
 </section>
 
 <section>
-  <div class="tag">About</div>
+  <h2>About</h2>
+  <img class="plate" src="/static/plates/t416.jpg" alt="" style="--tilt: -3deg">
   <div class="prose" id="about"></div>
 </section>
 
 <section>
-  <div class="tag">Lookalikes</div>
+  <h2>Quick facts</h2>
+  <img class="plate" src="/static/plates/t169.jpg" alt="" style="--tilt: 2deg">
+  <ul class="list" id="facts"><li class="caption">Asking the AI…</li></ul>
+  <p class="caption">Written by AI (Google Gemini). It can be wrong.</p>
+</section>
+
+<section id="prep-box" hidden>
+  <h2>Preparation</h2>
+  <img class="plate" src="/static/plates/t36.jpg" alt="" style="--tilt: -2deg">
+  <ol class="list" id="prep"></ol>
+  <p class="caption">Written by AI (Google Gemini) and shown only for species this site lists as edible after checking a source. It can be wrong. Never eat a wild mushroom unless an expert has identified it in person.</p>
+</section>
+
+<section>
   <div>
     <h2>Often mixed up with</h2>
     <p class="summary" id="look-summary"></p>
     <div class="look look-head"><span>Species</span><span>DNA difference</span><span>Relationship</span><span>Mixed up</span></div>
     <div id="lookalikes"></div>
-    <p class="caption">These are the species that iNaturalist observers most often confuse with this one, counted from identifications that were later corrected. The bar is the share of DNA barcode positions that differ, from one GenBank barcode per species. A single barcode can be mislabelled, and above about 40% the comparison is rough. <a href="/method">Method and limits</a></p>
+    <p class="caption">Species iNaturalist observers most often confuse with this one, from corrected identifications. The bar is the share of DNA barcode positions that differ. Above about 40% the comparison is rough. <a href="/method">Method and limits</a></p>
   </div>
 </section>
 
 <section>
-  <div class="tag">Family tree</div>
   <div>
     <h2>How they are related</h2>
     <div class="scroll" id="tree"><p class="caption">Building the tree…</p></div>
-    <p class="caption">A neighbour-joining tree built from the DNA barcodes of this species and its lookalikes. Species that join near the right edge have similar DNA. The horizontal length of each branch is the amount of DNA change. The tree is rooted halfway between the two most different species, so it shows how close they are, not which came first. Lookalikes without a usable barcode are left out. <a href="/glossary#tree">How to read a tree</a></p>
+    <p class="caption">Built from the DNA barcodes of this species and its lookalikes. Branches that meet near the right have similar DNA. Lookalikes without a usable barcode are left out. <a href="/glossary#tree">How to read a tree</a></p>
   </div>
 </section>
 
 <section id="side">
-  <div class="tag">Side by side</div>
   <div>
     <h2>Compare with a lookalike</h2>
     <div class="picker" id="picker"></div>

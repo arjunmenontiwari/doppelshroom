@@ -23,7 +23,7 @@ ROOT = Path(__file__).parent
 RANKS = ("family", "order", "class", "phylum")  # most specific first
 PAGES = {"/": "index.html", "/lens": "lens.html", "/compare": "compare.html", "/quiz": "quiz.html",
          "/glossary": "glossary.html",
-         "/method": "method.html", "/sources": "sources.html",
+         "/method": "method.html", "/sources": "sources.html", "/privacy": "privacy.html",
          "/species/{inat_id}": "species.html"}
 
 
@@ -178,10 +178,20 @@ def ai_down(request, error):
     return JSONResponse({"detail": str(error)}, status_code=503)
 
 
-# AI helpers: Gemini only suggests names, which are then checked against iNaturalist (see lookup.py).
+# AI helpers. Suggested names are checked against iNaturalist; facts and cooking steps are shown as AI-written.
 @app.get("/api/describe")
 def describe(q: str = Query(min_length=3, max_length=200)):
     return lookup.describe(q)
+
+
+@app.get("/api/facts/{inat_id}")
+def facts(inat_id: int):
+    return found(lookup.facts(inat_id))
+
+
+@app.get("/api/prep/{inat_id}")
+def prep(inat_id: int):
+    return found(lookup.prep(inat_id))  # 404 unless the hand-checked list calls it edible
 
 
 class Photo(BaseModel):

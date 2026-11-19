@@ -375,6 +375,19 @@ def taxon(inat_id):
     return cached("taxon", inat_id, fetch)
 
 
+def facts(inat_id):
+    t = taxon(inat_id)
+    return t and cached("facts", t["name"], lambda: gemini.facts(t["name"]))
+
+
+def prep(inat_id):
+    """Cooking steps, only for species the hand-checked list calls edible."""
+    t = taxon(inat_id)
+    if not t or CHECKED.get(t["name"], {}).get("status") != "edible":
+        return None
+    return cached("prep", t["name"], lambda: gemini.prep(t["name"]))
+
+
 def build_pair(a_id, b_id):
     """Two species compared: how they are classified, and their barcodes aligned letter by letter."""
     a, b = taxon(a_id), taxon(b_id)
@@ -433,8 +446,8 @@ def near(lat, lng, month):
     """Mushroom species recorded within 50 km of a point in a given month."""
     url = (f"{INAT}/observations/species_counts?taxon_id={MUSHROOMS}&lat={lat}&lng={lng}&radius=50"
            f"&month={month}&quality_grade=research&per_page=48")
-    return with_labels(cached("near", f"{lat}_{lng}_{month}", lambda: [
-        card(r["taxon"], count=r["count"]) for r in get(url)["results"] if r["taxon"]["rank"] == "species"]))
+    # Not cached: the site promises not to store where visitors are.
+    return with_labels([card(r["taxon"], count=r["count"]) for r in get(url)["results"] if r["taxon"]["rank"] == "species"])
 
 
 # Well-known mix-ups from field guides, used for the daily spotlight and the quiz.

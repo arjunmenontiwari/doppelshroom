@@ -1,4 +1,4 @@
-"""Gemini turns words or a photo into candidate species names. Nothing else it says reaches the site."""
+"""Gemini turns words or a photo into candidate species names, and writes short facts and preparation steps."""
 import json
 import os
 import urllib.request
@@ -9,11 +9,12 @@ API = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateConten
 TEXT_MODELS = ("gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-flash-latest")
 IMAGE_MODELS = ("gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-flash-latest")
 
-# The answer must have this shape, so the model cannot add advice or edibility claims.
-SCHEMA = {"type": "OBJECT", "required": ["species", "place"], "properties": {
+# Each answer must have a fixed shape, so the model cannot add anything the site did not ask for.
+NAMES = {"type": "OBJECT", "required": ["species", "place"], "properties": {
     "species": {"type": "ARRAY", "items": {"type": "STRING"}},
     "place": {"type": "STRING", "nullable": True},
 }}
+LIST = {"type": "OBJECT", "required": ["items"], "properties": {"items": {"type": "ARRAY", "items": {"type": "STRING"}}}}
 
 DESCRIBE = (
     "You help people find mushroom species in a database. Read the description and list up to 8 "
@@ -25,6 +26,15 @@ LENS = (
     "Look at the photo. If it shows a mushroom or another fungus, list up to 5 scientific names (genus "
     "and species) it could be, most likely first. If it shows no fungus, return an empty list. "
     "Place is always null. Return names only."
+)
+FACTS = (
+    "Give 5 short facts about the fungus {}: where and when it grows, how to recognise it, and how to tell it "
+    "apart from the species it is most often confused with. One plain sentence each. Do not say whether it is "
+    "edible or how to cook it."
+)
+PREP = (
+    "{} is an edible mushroom. List the steps to clean and cook it, in order, one plain sentence each, at most 6. "
+    "Put any step needed for safety first, such as cooking it fully, and say so if it must never be eaten raw."
 )
 
 
@@ -45,13 +55,13 @@ def read_key():
 KEY = read_key()
 
 
-def ask(models, instruction, parts):
+def ask(models, instruction, parts, schema):
     if not KEY:
         raise Unavailable("The AI helper is not set up on this server.")
     body = json.dumps({
         "systemInstruction": {"parts": [{"text": instruction}]},
         "contents": [{"parts": parts}],
-        "generationConfig": {"responseMimeType": "application/json", "responseSchema": SCHEMA},
+        "generationConfig": {"responseMimeType": "application/json", "responseSchema": schema},
     }).encode()
     for model in models:
         req = urllib.request.Request(API.format(model), data=body,
@@ -59,16 +69,29 @@ def ask(models, instruction, parts):
         try:
             with urllib.request.urlopen(req, timeout=30) as r:
                 answer = json.loads(json.load(r)["candidates"][0]["content"]["parts"][0]["text"])
-            return [n.strip() for n in answer["species"] if isinstance(n, str)], answer.get("place")
-        except (OSError, KeyError, IndexError, ValueError):
+            if all(isinstance(answer.get(k), list) for k in schema["required"] if k != "place"):
+                return answer
+        except (OSError, KeyError, IndexError, ValueError, AttributeError):
             continue  # busy, refused or a malformed answer: try the next model
     raise Unavailable("The AI helper is busy. Try again in a minute.")
 
 
+def strings(items):
+    return [n.strip() for n in items if isinstance(n, str) and n.strip()]
+
+
 def describe(text):
-    return ask(TEXT_MODELS, DESCRIBE, [{"text": text}])
+    answer = ask(TEXT_MODELS, DESCRIBE, [{"text": text}], NAMES)
+    return strings(answer["species"]), answer.get("place")
 
 
 def photo(data, mime):
-    names, _ = ask(IMAGE_MODELS, LENS, [{"inline_data": {"mime_type": mime, "data": data}}])
-    return names[:5]
+    return strings(ask(IMAGE_MODELS, LENS, [{"inline_data": {"mime_type": mime, "data": data}}], NAMES)["species"])[:5]
+
+
+def facts(name):
+    return strings(ask(TEXT_MODELS, FACTS.format(name), [{"text": name}], LIST)["items"])
+
+
+def prep(name):
+    return strings(ask(TEXT_MODELS, PREP.format(name), [{"text": name}], LIST)["items"])

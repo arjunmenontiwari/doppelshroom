@@ -19,10 +19,11 @@ function debounce(fn, ms = 300) {
 }
 
 const photo = (s, size) => (s.photo
-  ? `<img src="${esc(s.photo[size])}" alt="" title="${esc(s.photo.attribution)}" loading="lazy">`
+  ? `<img src="${esc(s.photo[size])}" alt="${esc(`Photo of ${common(s)} (${s.name})`)}" title="${esc(s.photo.attribution)}" loading="lazy">`
   : `<span class="nophoto"></span>`);
 const names = (s) => `<b>${esc(common(s))}</b><i>${esc(s.name)}</i>`;
-const card = (s) => `<a class="card" href="/species/${s.id}">${photo(s, "square")}
+// Found by its exact scientific name: only then may the species page show cooking steps.
+const card = (s) => `<a class="card" href="/species/${s.id}${s.exact ? "?via=name" : ""}">${photo(s, "square")}
   <span>${names(s)}<small>${s.status ? statusTag(s) : ""}${s.count ? `${s.count.toLocaleString("en")} record${s.count > 1 ? "s" : ""}` : ""}${s.note ? esc(s.note) : ""}</small></span></a>`;
 const cards = (el, list, empty) => { el.innerHTML = list.length ? list.map(card).join("") : `<p class="caption">${empty}</p>`; };
 const note = (el, text) => { el.innerHTML = `<p class="caption">${esc(text)}</p>`; };
@@ -34,6 +35,7 @@ function initSearch() {
     if (q.length < 2) { $("name-results").innerHTML = ""; return; }
     try {
       const list = await api(`/api/find?q=${encodeURIComponent(q)}`);
+      list.forEach((s) => { s.exact = s.name.toLowerCase() === q.toLowerCase(); });
       if (q === $("name").value.trim()) cards($("name-results"), list, "No mushroom species found with that name."); // ignore answers to older typing
     } catch (e) { note($("name-results"), e.message); }
   };
@@ -88,7 +90,7 @@ async function initSpecies() {
   document.title = `${common(s)} · Doppelshroom`;
   $("title").textContent = common(s);
   $("latin").textContent = s.name;
-  $("photo").innerHTML = photo(s, "medium");
+  $("photo").innerHTML = photo(s, "medium") + (s.photo ? `<p class="caption">${esc(s.photo.attribution)}, via <a href="https://www.inaturalist.org/taxa/${s.id}">iNaturalist</a></p>` : "");
   const tax = s.taxonomy;
   $("meta").innerHTML = `${statusTag(s)}<span>${esc(tax.family)}, ${esc(tax.order)}</span>
     <a href="https://www.inaturalist.org/taxa/${s.id}">iNaturalist</a>
@@ -100,8 +102,14 @@ async function initSpecies() {
       ? `Label checked by hand for this site. Source: <a href="${esc(lab.source)}">${esc(new URL(lab.source).hostname)}</a>`
       : `Label from the <a href="${esc(lab.source)}">Wikipedia article</a>, whose infobox lists: ${lab.listed.map(esc).join(", ")}. Where it lists more than one, this site shows the most dangerous.`;
   $("about").innerHTML = s.wikipedia
-    ? `<p>${esc(s.wikipedia.extract)}</p><p><a href="${esc(s.wikipedia.url)}">Read more on Wikipedia</a></p>`
+    ? `<p>${esc(s.wikipedia.extract)}</p><p class="caption">From <a href="${esc(s.wikipedia.url)}">Wikipedia</a>, under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>`
     : `<p>No Wikipedia summary found for this species.</p>`;
+  const list = (items) => items.map((t) => `<li>${esc(t)}</li>`).join("");
+  api(`/api/facts/${id}`).then((f) => { $("facts").innerHTML = list(f); })
+    .catch((e) => { $("facts").innerHTML = `<li class="caption">${esc(e.message)}</li>`; });
+  if (params.get("via") === "name" && s.status === "edible" && lab.from === "checked") {
+    api(`/api/prep/${id}`).then((p) => { $("prep").innerHTML = list(p); $("prep-box").hidden = false; }).catch(() => {});
+  }
 
   const looks = s.lookalikes;
   if (!looks.length) {
@@ -226,7 +234,7 @@ function seasonChart(el, pair, counts) {
       tip.innerHTML = `<b>${MONTHS[i]}</b>${pair.map((s, k) => `<span><i class="sw ${"ab"[k]}"></i>${esc(common(s))}: ${counts[k][i].toLocaleString("en")} (${pct(shares[k][i])})</span>`).join("")}`;
       tip.hidden = false;
       const box = chart.getBoundingClientRect(), r = h.getBoundingClientRect();
-      tip.style.left = `${Math.max(0, Math.min(r.left - box.left + r.width / 2 - 90, box.width - 190))}px`;
+      tip.style.translate = `${Math.max(0, Math.min(r.left - box.left + r.width / 2 - 90, box.width - 190))}px 0`;
     });
     h.addEventListener("mouseleave", () => { tip.hidden = true; });
   });
@@ -368,12 +376,25 @@ function initCompare() {
 // ---- Quiz ----
 function initQuiz() {
   let right = 0, asked = 0;
-  const next = async () => {
+  const stage = $("stage");
+  const score = () => { $("score").textContent = `Score ${right} of ${asked}`; };
+  // A stepper: the next question slides in from the right as the last one leaves to the left.
+  const slide = (from, to, fill = "none") => (matchMedia("(prefers-reduced-motion: reduce)").matches ? Promise.resolve()
+    : stage.animate([{ transform: `translateX(${from})` }, { transform: `translateX(${to})` }],
+      { duration: 380, easing: "cubic-bezier(.3, .7, .2, 1)", fill }).finished);
+  const next = async (first) => {
+    first = first === true;
+    const leaving = first ? null : slide("0", "-105%", "forwards");
+    if (!first) $("score").textContent = "Finding the next photo…";
+    let q, error;
+    try { q = await api("/api/quiz"); } catch (e) { error = e; }
+    await leaving;
+    stage.getAnimations().forEach((a) => a.cancel());
+    score();
     $("reveal").innerHTML = "";
     $("choices").innerHTML = "";
-    $("mystery").innerHTML = `<p class="caption">Finding a photo…</p>`;
-    let q;
-    try { q = await api("/api/quiz"); } catch (e) { $("mystery").innerHTML = `<p class="caption">${esc(e.message)}</p>`; return; }
+    if (!first) slide("105%", "0");
+    if (error) { $("mystery").innerHTML = `<p class="caption">${esc(error.message)}</p><button class="button" id="retry">Try again</button>`; $("retry").addEventListener("click", next); return; }
     $("mystery").innerHTML = `<img src="${esc(q.photo.url)}" alt="A mushroom to identify">
       <figcaption class="caption">Photo ${esc(q.photo.attribution)}, via iNaturalist</figcaption>`;
     const options = Math.random() < 0.5 ? [q.a, q.b] : [q.b, q.a];
@@ -382,21 +403,24 @@ function initQuiz() {
     $("choices").querySelectorAll("button").forEach((btn) => btn.addEventListener("click", () => {
       const ok = +btn.dataset.id === q.answer;
       asked += 1; right += ok;
-      $("score").textContent = `Score ${right} of ${asked}`;
+      const r = btn.getBoundingClientRect();
+      if (ok) spores(r.left + r.width / 2, r.top + r.height / 2, 40);
+      else if (!calm()) btn.animate([{ translate: "0" }, { translate: "-8px" }, { translate: "7px" }, { translate: "-4px" }, { translate: "0" }], { duration: 400, easing: "ease-out" });
+      score();
       $("choices").querySelectorAll("button").forEach((b) => {
         b.disabled = true;
         const s = options.find((o) => String(o.id) === b.dataset.id);
         b.classList.toggle("answer", s.id === q.answer);
         b.querySelector("span").insertAdjacentHTML("beforeend", `<small>${statusTag(s)}${s.id === q.answer ? " · The photo shows this one" : ""}</small>`);
       });
-      $("reveal").innerHTML = `<p class="summary"><b>${ok ? "Right." : "Not this time."}</b></p>${mixText(q)}
+      $("reveal").innerHTML = `<p class="summary"><b>${ok ? "Right" : "Not this time"}</b></p>${mixText(q)}
         <p><a href="https://www.inaturalist.org/observations/${q.photo.observation}">See this observation on iNaturalist</a> ·
         <a href="/compare?a=${q.a.id}&b=${q.b.id}">Compare the two species</a></p>
         <button class="button" id="next">Next photo</button>`;
       $("next").addEventListener("click", next);
     }));
   };
-  next();
+  next(true);
 }
 
 function initDescribe() {
