@@ -95,6 +95,6 @@ The code is under the [MIT License](LICENSE). Data, photos, text, fonts and artw
 
 Built by **Arjun Menon Tiwari**, a computer science student at the University of Helsinki with a minor in chemistry. It's a bioinformatics portfolio project.
 
-Found a bug, or a mushroom that's misbehaving? [Open an issue](https://github.com/arjunmenontiwari/doppelshroom/issues) or say hi on [LinkedIn](https://www.linkedin.com/in/arjun-menon-tiwari-22bb63299/).
+Found a bug, or a mushroom that's misbehaving? [Open an issue](https://github.com/arjunmenontiwari/doppelshroom/issues) or say hi on [LinkedIn](https://www.linkedin.com/in/arjun-menon-tiwari/).
 
 *Dopple says: "don't eat me. i'm a looker, not a snack."*
